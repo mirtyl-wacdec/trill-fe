@@ -1,45 +1,39 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import "./App.css";
+import Leftbar from "./left/Leftbar";
+import Home from "./column/Home";
+import Timeline from "./column/Timeline";
+import Policy from "./column/Policy";
+import Notifications from "./column/Notifications";
+import Lists from "./column/Lists";
+import List from "./column/List";
+import User from "./column/User";
+import Thread from "./column/Thread";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+      <BrowserRouter>
+      <Leftbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="timeline" element={<Timeline />} />
+          <Route path="home" element={<Home />} />
+          <Route path="policy" element={<Policy />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="lists" element={<Lists />}>
+            <Route path=":listname" element={<List />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <div id="rightbar"></div>
+      <div id="post-button">
+        <p>Poast</p>
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
