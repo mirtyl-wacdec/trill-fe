@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useLocalState from "./logic/state";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import "./App.css";
@@ -11,12 +12,20 @@ import Lists from "./column/Lists";
 import List from "./column/List";
 import User from "./column/User";
 import Thread from "./column/Thread";
+import Composer from "./composer/Composer";
 
 function App() {
+  const [writing, setWriting] = useState(false);
+  const { scryPolicy, scryFeed, scryFollows, subscribeFeed, subscribeHark } =
+    useLocalState();
+  useEffect(() => {
+    scryPolicy();
+    // scryFollows();
+  }, []);
   return (
     <div className="App">
       <BrowserRouter>
-      <Leftbar />
+        <Leftbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="timeline" element={<Timeline />} />
@@ -29,9 +38,14 @@ function App() {
         </Routes>
       </BrowserRouter>
       <div id="rightbar"></div>
-      <div id="post-button">
+      <div id="post-button" onClick={() => setWriting(true)}>
         <p>Poast</p>
       </div>
+      {writing && (
+        <div id="modal-wrapper">
+          <Composer quit={()=> setWriting(false)} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,49 +1,53 @@
-import create, { State } from 'zustand';
-import {bootstrapApi} from './api';
-import produce from 'immer';
+import create, { State } from "zustand";
+import { bootstrapApi } from "./api";
+import produce from "immer";
 import Urbit from "@urbit/http-api";
-import type {Ship, Graph} from "./types";
+import type { Ship, Graph } from "./types";
 
-
-
-export type SubscriptionStatus = 'connected' | 'disconnected' | 'reconnecting';
-
+export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
 
 export interface LocalState {
-  our: Ship,
-  airlock: Urbit,
-  theme: 'light' | 'dark' | 'auto';
+  our: Ship;
+  airlock: Urbit;
+  theme: "light" | "dark" | "auto";
   dark: boolean;
   mobile: boolean;
   breaks: {
     sm: boolean;
     md: boolean;
     lg: boolean;
-  }
+  };
   subscription: SubscriptionStatus;
   reconnect: () => Promise<void>;
   bootstrap: () => Promise<void>;
   errorCount: number;
   init: () => void;
-  fans: Set<Ship>,
-  follows: Set<Ship>,
-  activeFeed: "timeline" | "notifications" | Ship,
-  activeGraph: Graph
+  fans: Set<Ship>;
+  follows: Set<Ship>;
+  activeFeed: "timeline" | "notifications" | Ship;
+  activeGraph: Graph;
   scryFeed: (feed: string) => Promise<void>;
   scryFollows: () => Promise<void>;
   subscribeFeed: () => Promise<void>;
   subscribeHark: () => Promise<void>;
-  policy: Policy,
+  policy: Policy;
   scryPolicy: () => Promise<void>;
   changePolicy: () => Promise<void>;
+  scryTimeline: () => Promise<void>;
 }
-interface Key{
-  ship: Ship,
-  name: string
+interface Key {
+  ship: Ship;
+  name: string;
 }
-interface Policy{
-  read: string;
-  write: string;
+interface Policy {
+  read: Whitelist | Blacklist;
+  write: Whitelist | Blacklist;
+}
+interface Whitelist {
+  allow: Ship[];
+}
+interface Blacklist {
+  "not-allow": Ship[];
 }
 function wait(ms: number) {
   return new Promise((resolve, reject) => {
@@ -53,7 +57,7 @@ function wait(ms: number) {
 type LocalStateZus = LocalState & State;
 
 const useLocalState = create<LocalStateZus>((set, get) => ({
-  our: (window as any).ship || "myn",
+  our: "~put", //(window as any).ship || "~put",
   theme: "auto",
   fans: new Set([]),
   follows: new Set([]),
@@ -62,21 +66,24 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   breaks: {
     sm: false,
     md: false,
-    lg: false
+    lg: false,
   },
-  subscription: 'connected',
+  subscription: "connected",
   errorCount: 0,
   // XX this logic should be handled by eventsource lib, but channel
   // resume doesn't work properly
   airlock: bootstrapApi(),
-  init: () => set({airlock: bootstrapApi()}),
+  init: () => set({ airlock: bootstrapApi() }),
   reconnect: async () => {
     const airlock = get().airlock;
     const { errorCount } = get();
-    set(s => ({ errorCount: s.errorCount+1, subscription: 'reconnecting' }));
+    set((s) => ({
+      errorCount: s.errorCount + 1,
+      subscription: "reconnecting",
+    }));
 
-    if(errorCount > 5) {
-      set({ subscription: 'disconnected' });
+    if (errorCount > 5) {
+      set({ subscription: "disconnected" });
       return;
     }
     await wait(Math.pow(2, errorCount) * 750);
@@ -90,42 +97,56 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   bootstrap: async () => {
     const airlock = get().airlock;
-    set({ subscription: 'reconnecting', errorCount: 0 });
+    set({ subscription: "reconnecting", errorCount: 0 });
     if (airlock) airlock.reset();
     await bootstrapApi();
-    set({ subscription: 'connected' });
+    set({ subscription: "connected" });
   },
   // @ts-ignore investigate zustand types
-  activeFeed: get().our,
+  activeFeed: (window as any).ship || "put",
   activeGraph: {},
-  scryFeed: async(feed: string) => {
+  scryFeed: async (feed: Ship) => {
     const airlock = get().airlock;
-    const res = await  airlock.scry({app: "feed-store", path: "/feed"});
-    set({activeGraph: res["graph-update"]["keys"]})
+    const path = `/feed/${feed}`
+    const res = await airlock.scry({ app: "feed-store", path: path });
+    console.log(res, "scried feed");
+    set({ 
+      activeGraph: res["feed-scry"]["feed"],
+      activeFeed: feed
+   });
+  },
+  scryTimeline: async () => {
+    const airlock = get().airlock;
+    const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
+    console.log(res, "scried feed");
+    set({ activeGraph: res["feed-scry"].feed });
   },
   scryFollows: async () => {
     const airlock = get().airlock;
-    const res = await  airlock.scry({app: "feed-store", path: "/follows"});
+    const res = await airlock.scry({ app: "feed-store", path: "/follows" });
+    console.log(res, "scried follows");
     set({
       fans: res["feed-scry"]["follows"],
-      follows: res["feed-scry"]["fans"]
-    })
+      follows: res["feed-scry"]["fans"],
+    });
   },
   subscribeFeed: async () => {},
   subscribeHark: async () => {},
-  policy: {read: "", write: ""},
+  policy: { 
+    read: { allow: [] }, 
+    write: { allow: [] } 
+  },
   scryPolicy: async () => {
     const airlock = get().airlock;
-    const res = await  airlock.scry({app: "feed-store", path: "/policy"});
-    set({
-      fans: res["feed-scry"]["follows"],
-      follows: res["feed-scry"]["fans"]
-    })
+    const res = await airlock.scry({ app: "feed-store", path: "/policy" });
+    console.log(res, "scried policy");
+    const policy = res.policy;
+    set({ policy: policy });
   },
-  changePolicy: async () => {}
-  }));
+  changePolicy: async () => {},
+}));
 
-  export default useLocalState;
+export default useLocalState;
 
-  // http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json
-  // http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone/100.json
+// http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json
+// http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone/100.json
