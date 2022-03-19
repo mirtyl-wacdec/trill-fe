@@ -1,11 +1,11 @@
 :root {
-  --background-color: rgb(220,220,220);
+  --background-color: white;
   --text-color: #black;
   --link-color: #543fd7;
 }
 
 html[data-theme='light'] {
-  --background-color: rgb(220,220,220);
+  --background-color: white;
   --text-color: black;
   /* --link-color: #543fd7; */
 }
@@ -19,7 +19,7 @@ input, textarea{
   outline: none
 }
 
-.body{
+body{
   background-color: var(--background-color);
 }
 a,p,h1,h2,h3,h4,h5,h6{
@@ -65,24 +65,62 @@ a,p,h1,h2,h3,h4,h5,h6{
 }
 
 /* main column */
-#main header{
+#main > header{
   padding: 5px;
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid grey;
 }
-#main header p{
+#main > header > p{
   font-size: 2rem;
   margin: 0 auto;
 }
-#main header input{
+#main > header > input{
   flex-grow: 1;
   padding: 0 10px;
   margin: 0 10px;
 }
-#main header svg{
+#main > header > svg{
   width: 30px;
   cursor: pointer;
+}
+
+/* posts */
+.post{
+  border-bottom: 1px solid grey;
+}
+.post header{
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+.post > header > .author{
+  display: flex;
+}
+.post > header > .author p{
+  margin: 0 0 0 1rem;
+  font-size: 20px;
+}
+.post .nav-buttons{
+  display: flex;
+}
+.post .nav-buttons svg{
+  width: 20px;
+  cursor: pointer;
+}
+.post .date p{
+  margin: 0 1rem 0 0;
+}
+
+.body{
+  padding: 0.5rem;
+}
+.body > p{
+  display: inline;
+}
+.body > .mention:hover{
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 /* modal */

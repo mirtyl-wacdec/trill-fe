@@ -110,10 +110,15 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     const path = `/feed/${feed}`
     const res = await airlock.scry({ app: "feed-store", path: path });
     console.log(res, "scried feed");
+    if ("feed-scry" in res)
     set({ 
       activeGraph: res["feed-scry"]["feed"],
       activeFeed: feed
    });
+   else ("not-follow" in res)
+     set({
+       activeFeed: "not-follow"
+     })
   },
   scryTimeline: async () => {
     const airlock = get().airlock;

@@ -17,7 +17,7 @@ function Home(){
       <div id="feed">
         {Object.keys(activeGraph).map(index => {
           return(
-          <Post node={activeGraph[index]} />
+          <Post key={index} node={activeGraph[index]} />
           )
         })}
         </div>

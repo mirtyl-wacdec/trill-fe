@@ -61,3 +61,90 @@ function extract_mention(data: tokenizerData): tokenizerData {
       else return acc;
     }, data);
 }
+
+import type {Ship, ID} from "./types";
+export function createReference(ship: Ship, id: ID){
+  return {reference: {
+    feed: {id: id, ship: ship}
+  }}
+}
+
+export function addScheme(url: string) {
+  if (url.includes("localhost")) {
+    return `http://${url.replace("http://", "")}`;
+  } else {
+    return `https://${url.replace("http://", "")}`;
+  }
+}
+
+export function easyCode(code: string) {
+  const string = code.replace(/-/g, "");
+  const matches = string.match(/.{1,6}/g)
+  if (matches) return matches.join("-");
+}
+
+
+export function tilde(patp: Ship) {
+  if (patp[0] == "~") {
+    return patp;
+  } else {
+    return "~" + patp;
+  }
+}
+
+export function color_to_hex(color: string) {
+  let hex = "#" + color.replace(".", "").replace("0x", "").toUpperCase();
+  if (hex == "#0") {
+    hex = "#000000";
+  }
+  return hex;
+}
+
+export function date_diff(date: number, type: "short" | "long") {
+  const now = new Date().getTime();
+  const diff = now - new Date(date).getTime();
+  if (type == "short") {
+    return to_string(diff / 1000);
+  } else {
+    return to_string_long(diff / 1000);
+  }
+}
+
+function to_string(s: number) {
+  if (s < 60) {
+    return "now";
+  } else if (s < 3600) {
+    return `${Math.ceil(s / 60)}m`;
+  } else if (s < 86400) {
+    return `${Math.ceil(s / 60 / 60)}h`;
+  } else if (s < 2678400) {
+    return `${Math.ceil(s / 60 / 60 / 24)}d`;
+  } else if (s < 32140800) {
+    return `${Math.ceil(s / 60 / 60 / 24 / 30)}mo`;
+  } else {
+    return `${Math.ceil(s / 60 / 60 / 24 / 30 / 12)}y`;
+  }
+}
+
+function to_string_long(s: number) {
+  if (s < 60) {
+    return "right now";
+  } else if (s < 3600) {
+    return `${Math.ceil(s / 60)} minutes ago`;
+  } else if (s < 86400) {
+    return `${Math.ceil(s / 60 / 60)} hours ago`;
+  } else if (s < 2678400) {
+    return `${Math.ceil(s / 60 / 60 / 24)} days ago`;
+  } else if (s < 32140800) {
+    return `${Math.ceil(s / 60 / 60 / 24 / 30)} months ago`;
+  } else {
+    return `${Math.ceil(s / 60 / 60 / 24 / 30 / 12)} years ago`;
+  }
+}
+
+export function regexes() {
+  const IMAGE_REGEX = new RegExp(/(jpg|img|png|gif|tiff|jpeg|webp|webm|svg)$/i);
+  const AUDIO_REGEX = new RegExp(/(mp3|wav|ogg)$/i);
+  const VIDEO_REGEX = new RegExp(/(mov|mp4|ogv)$/i);
+  return { img: IMAGE_REGEX, aud: AUDIO_REGEX, vid: VIDEO_REGEX };
+}
