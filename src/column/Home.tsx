@@ -10,12 +10,14 @@ function Home(){
   }, [])
   console.log(activeGraph, "ag")
   return(
-    <div id="main">
+    <div id="main-column">
       <header>
-        <p id="column-title">Home</p>
+        <h4 id="column-title">Home</h4>
       </header>
       <div id="feed">
-        {Object.keys(activeGraph).map(index => {
+        {Object.keys(activeGraph)
+        .sort((a, b) => activeGraph[b].post.time - activeGraph[a].post.time)
+        .map(index => {
           return(
           <Post key={index} node={activeGraph[index]} />
           )

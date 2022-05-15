@@ -13,39 +13,41 @@ import List from "./column/List";
 import User from "./column/User";
 import Thread from "./column/Thread";
 import Composer from "./composer/Composer";
+import PlayArea from "./playground/PlayArea";
 
 function App() {
   const [writing, setWriting] = useState(false);
-  const { scryPolicy, scryFeed, scryFollows, subscribeFeed, subscribeHark } =
-    useLocalState();
+  const {
+    airlock,
+    scryPolicy,
+    scryFeed,
+    scryFollows,
+    subscribeFeed,
+    subscribeHark,
+  } = useLocalState();
   useEffect(() => {
+    console.log(airlock, "airlock");
     scryPolicy();
+    subscribeFeed();
     // scryFollows();
   }, []);
   return (
     <div className="App">
       <BrowserRouter>
         <Leftbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="timeline" element={<Timeline />} />
-          <Route path="home" element={<Home />} />
-          <Route path="policy" element={<Policy />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="lists" element={<Lists />}>
-            <Route path=":listname" element={<List />} />
-          </Route>
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="timeline" element={<Timeline />} />
+            <Route path="home" element={<Home />} />
+            <Route path="policy" element={<Policy />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="lists" element={<Lists />}>
+              <Route path=":listname" element={<List />} />
+            </Route>
+          </Routes>
+          <PlayArea />
       </BrowserRouter>
-      <div id="rightbar"></div>
-      <div id="post-button" onClick={() => setWriting(true)}>
-        <p>Poast</p>
-      </div>
-      {writing && (
-        <div id="modal-wrapper">
-          <Composer quit={()=> setWriting(false)} />
-        </div>
-      )}
+      {/* <PlayArea /> */}
     </div>
   );
 }

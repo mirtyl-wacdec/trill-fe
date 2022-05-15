@@ -2,7 +2,7 @@ import create, { State } from "zustand";
 import { bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
-import type { Ship, Graph } from "./types";
+import type { Node, ID, Ship, Graph } from "./types";
 
 export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
 
@@ -24,7 +24,7 @@ export interface LocalState {
   init: () => void;
   fans: Set<Ship>;
   follows: Set<Ship>;
-  activeFeed: "timeline" | "notifications" | Ship;
+  activeFeed: "timeline" | "notifications" | "not-follow" | "not-found" | Ship;
   activeGraph: Graph;
   scryFeed: (feed: string) => Promise<void>;
   scryFollows: () => Promise<void>;
@@ -57,7 +57,7 @@ function wait(ms: number) {
 type LocalStateZus = LocalState & State;
 
 const useLocalState = create<LocalStateZus>((set, get) => ({
-  our: "~put", //(window as any).ship || "~put",
+  our: "~zod", //(window as any).ship || "~put",
   theme: "auto",
   fans: new Set([]),
   follows: new Set([]),
@@ -115,7 +115,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       activeGraph: res["feed-scry"]["feed"],
       activeFeed: feed
    });
-   else ("not-follow" in res)
+   else if ("not-follow" in res)
      set({
        activeFeed: "not-follow"
      })
@@ -135,7 +135,29 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       follows: res["feed-scry"]["fans"],
     });
   },
-  subscribeFeed: async () => {},
+  subscribeFeed: async () => {
+    const airlock = get().airlock;
+    const reducer = (data: any) => {
+      const {activeFeed, activeGraph} = get();
+      console.log(activeFeed, "af")
+      console.log(data, "data")
+      if ("thread-updated" in data["feed-post-update"]){
+        if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed){
+          const index : ID = data["feed-post-update"]["thread-updated"].thread.id
+          const toAdd : any = {};
+          toAdd[index] = data["feed-post-update"]["thread-updated"].thread;
+          const newGraph = {...activeGraph, ...toAdd};
+          set({activeGraph: newGraph})
+        }
+      }
+      
+      // if (activeFeed === data.ship )
+
+
+    }
+    const res = await airlock.subscribe({ app: "feed-store", path: "/frontend", event: reducer });
+    console.log(res, "subscribed")
+  },
   subscribeHark: async () => {},
   policy: { 
     read: { allow: [] }, 

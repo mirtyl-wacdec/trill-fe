@@ -4,7 +4,7 @@ export interface Graph {
 export interface Node {
   id: ID;
   post: Poast;
-  children: Set<ID>;
+  children: Array<ID>;
   engagement: Engagement;
 };
 export type ID = string; // 
@@ -22,8 +22,8 @@ export interface Poast {
 }
 export interface Engagement {
   reacts: ReactMap;
-  quoted: Set<{ ship: Ship; id: ID }>;
-  shared: Set<{ ship: Ship; id: ID }>;
+  quoted: Array<{ ship: Ship; id: ID }>;
+  shared: Array<{ ship: Ship; id: ID }>;
 }
 export interface ReactMap {
   [key: Ship]: string; // emoji

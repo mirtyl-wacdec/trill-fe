@@ -6,9 +6,9 @@ import Urbit from "@urbit/http-api";
 // window.airlock = airlock;
 
 export function bootstrapApi(): Urbit {
-  const airlock = new Urbit("http://localhost", "lodpyx-lanmeg-forleg-tiplup");
-  airlock.ship = (window as any).ship || "put";
-  airlock.desk = "ursprache";
+  const airlock = new Urbit("http://localhost", "lidlut-tabwed-pillex-ridrup");
+  airlock.ship = (window as any).ship || "zod";
+  airlock.desk = "trill";
   airlock.onError = (e) => {
     (async () => {
       const { reconnect } = useLocalState.getState();

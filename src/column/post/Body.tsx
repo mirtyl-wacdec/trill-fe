@@ -9,20 +9,20 @@ function Body({ contents }: BodyProps) {
   function load_user() {}
   return (
     <div className="body">
-      {contents.map((c) => {
+      {contents.map((c, i) => {
         if ("text" in c)
           return (
-              <Markdown>{c.text}</Markdown>
+              <Markdown key={JSON.stringify(c)+ `{${i}}`}>{c.text}</Markdown>
           );
         else if ("mention" in c)
           return (
-            <p className="mention" onClick={() => scryFeed(c.mention)}>
+            <p key={JSON.stringify(c)+ `{${i}}`} className="mention" onClick={() => scryFeed(c.mention)}>
               {c.mention}
             </p>
           );
         else if ("url" in c)
           return (
-            <a href={c.url}>
+            <a key={JSON.stringify(c)+ `{${i}}`} href={c.url}>
               {c.url}
             </a>
           );

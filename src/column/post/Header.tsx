@@ -10,10 +10,7 @@ function Header({ node }: HeaderProps) {
   return (
     <header>
       <div className="author">
-        <div className="sigil">
-          <Sigil patp={node.post.author} size={30} />
-        </div>
-        <div className="author">
+        <div className="name">
           {/* <p className="nick">
              </p> */}
           <p className="p">{node.post.author}</p>
