@@ -123,17 +123,18 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   scryTimeline: async () => {
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
-    console.log(res, "scried feed");
-    set({ activeGraph: res["feed-scry"].feed });
+    console.log(res, "scried timeline");
+    set({ activeGraph: res.timeline.timeline });
   },
   scryFollows: async () => {
     const airlock = get().airlock;
-    const res = await airlock.scry({ app: "feed-store", path: "/follows" });
+    const res = await airlock.scry({ app: "feed-store", path: "/following" });
     console.log(res, "scried follows");
-    set({
-      fans: res["feed-scry"]["follows"],
-      follows: res["feed-scry"]["fans"],
-    });
+    // set({
+    //   fans: res["feed-scry"]["follows"],
+    //   follows: res["feed-scry"]["fans"],
+    // });
+    set({follows: new Set(res["following"])})
   },
   subscribeFeed: async () => {
     const airlock = get().airlock;

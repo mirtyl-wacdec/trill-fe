@@ -146,6 +146,32 @@ a,p,h1,h2,h3,h4,h5,h6{
   width: 50%;
   justify-content: space-between;
 }
+#leftbar .searchbox{
+  background-color: var(--grey-background);
+  border-radius: 0.7rem;
+  margin: 1rem 0;
+  padding: 0.4rem;
+}
+#leftbar .searchbox input{
+  border: none;
+  outline: none;
+  background-color: var(--grey-background);
+  width: 90%;
+  font-size: 1rem;
+}
+#leftbar .candidate{
+  display: flex;
+  background-color: var(--grey-background);
+  margin: 0.2rem;
+  border-radius: 0.8rem;
+  padding: 0.2rem;
+}
+#leftbar .candidate:hover{
+  background-color: rgb(100,100,100);
+}
+#leftbar .candidate .candidate-patp{
+  margin-left: 0.5rem;
+}
 .bar{
   width: 60%;
   border-top: 1px solid grey;

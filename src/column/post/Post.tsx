@@ -5,9 +5,9 @@ import Body from "./Body";
 import Footer from "./Footer";
 interface PostProps {
   node: Node;
+  fake?: boolean;
 }
-function Post({ node }: PostProps) {
-  console.log(node, "node");
+function Post({ node, fake }: PostProps) {
   return (
     <div className="post">
       <div className="left">
@@ -18,7 +18,7 @@ function Post({ node }: PostProps) {
       <div className="right">
         <Header node={node} />
         <Body contents={node.post.contents} />
-        <Footer node={node} />
+        {!fake && <Footer node={node} />}
       </div>
     </div>
   );

@@ -12,11 +12,8 @@ export type Ship = string; // ~sampel
 export interface Poast {
   host: Ship;
   author: Ship;
-  children: Poast[];
   contents: Content[];
-  id: ID;
-  likes: Ship[];
-  parent: ID;
+  parent: ID | null;
   thread: ID;
   time: number;
 }

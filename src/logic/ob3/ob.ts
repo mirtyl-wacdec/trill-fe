@@ -3,8 +3,6 @@
 // See arvo/sys/hoon.hoon.
 import {BN} from "bn.js";
 import {muk} from "./muk";
-import type {Bn, Number} from "./types";
-
 
 const ux_1_0000 = new BN('10000', 'hex')
 const ux_ffff_ffff = new BN('ffffffff', 'hex')
@@ -16,7 +14,7 @@ const u_65535 = new BN('65535')
 const u_65536 = new BN('65536')
 
 // a PRF for j in { 0, .., 3 }
-const F = (j: number, arg: Bn): Bn => {
+const F = (j, arg) => {
   const raku = [
     0xb76d5eed,
     0xee281300,
@@ -30,9 +28,11 @@ const F = (j: number, arg: Bn): Bn => {
 /**
  * Conceal structure v3.
  *
+ * @param {String, Number, BN} pyn
+ * @return  {BN}
  */
-const fein = (arg: Number): Bn => {
-  const loop = (pyn: Bn): Bn => {
+const fein = (arg) => {
+  const loop = (pyn) => {
     const lo = pyn.and(ux_ffff_ffff)
     const hi = pyn.and(ux_ffff_ffff_0000_0000)
 
@@ -49,9 +49,11 @@ const fein = (arg: Number): Bn => {
 /**
  * Restore structure v3.
  *
+ * @param  {String, Number, BN}  cry
+ * @return  {BN}
  */
-const fynd = (arg: Number): Bn => {
-  const loop = (cry: Bn): Bn => {
+const fynd = (arg) => {
+  const loop = (cry) => {
     const lo = cry.and(ux_ffff_ffff)
     const hi = cry.and(ux_ffff_ffff_0000_0000)
 
@@ -76,10 +78,10 @@ const fynd = (arg: Number): Bn => {
  * @param  {String, Number, BN}
  * @return  {BN}
  */
-const feis = (arg: Number): Bn =>
+const feis = arg =>
   Fe(4, u_65535, u_65536, ux_ffff_ffff, F, new BN(arg))
 
-const Fe = (r: number, a: Bn, b: Bn, k: Bn, f: typeof F, m: Bn): Bn => {
+const Fe = (r, a, b, k, f, m) => {
   const c = fe(r, a, b, f, m)
   return (
       c.lt(k)
@@ -88,8 +90,8 @@ const Fe = (r: number, a: Bn, b: Bn, k: Bn, f: typeof F, m: Bn): Bn => {
   )
 }
 
-const fe = (r: number, a: Bn, b: Bn, f: typeof F, m: Bn) => {
-  const loop = (j: number, ell: Bn, arr: Bn): Bn => {
+const fe = (r, a, b, f, m) => {
+  const loop = (j, ell, arr) => {
     if (j > r) {
       return (
           r % 2 !== 0
@@ -127,10 +129,10 @@ const fe = (r: number, a: Bn, b: Bn, f: typeof F, m: Bn) => {
  * @param {Number, String, BN}  arg
  * @return  {BN}
  */
-const tail = (arg: Number): Bn =>
+const tail = arg =>
   Fen(4, u_65535, u_65536, ux_ffff_ffff, F, new BN(arg))
 
-const Fen = (r: number, a: Bn, b: Bn, k: Bn, f: typeof F, m: Bn): Bn => {
+const Fen = (r, a, b, k, f, m) => {
   const c = fen(r, a, b, f, m)
   return (
       c.lt(k)
@@ -139,8 +141,8 @@ const Fen = (r: number, a: Bn, b: Bn, k: Bn, f: typeof F, m: Bn): Bn => {
   )
 }
 
-const fen = (r: number, a: Bn, b: Bn, f: typeof F, m: Bn) => {
-  const loop = (j: number, ell: Bn, arr: Bn): Bn => {
+const fen = (r, a, b, f, m) => {
+  const loop = (j, ell, arr) => {
     if (j < 1) {
       return a.mul(arr).add(ell)
     } else {

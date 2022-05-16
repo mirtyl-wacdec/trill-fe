@@ -2,7 +2,6 @@
 //
 // See arvo/sys/hoon.hoon.
 import {BN} from "bn.js"
-import type {Bn, PatP, PatQ, Rank, Iterable, Number} from "./types";
 
 const ux_FF = new BN(0xFF)
 const ux_FF00 = new BN(0xFF00)
@@ -11,8 +10,12 @@ const u_256 = new BN(256)
 /**
  * Standard murmur3.
  *
+ * @param  {Number}  syd
+ * @param  {Number}  len
+ * @param  {BN}  key
+ * @return  {BN}
  */
-export const muk = (syd: number, len: number, key: Bn): Bn => {
+export const muk = (syd: number, len: number, key) => {
   const lo = key.and(ux_FF).toNumber()
   const hi = key.and(ux_FF00).div(u_256).toNumber()
   const kee = String.fromCharCode(lo) + String.fromCharCode(hi)
@@ -53,7 +56,7 @@ export const muk = (syd: number, len: number, key: Bn): Bn => {
  * @param {number} seed Positive integer only
  * @return {number} 32-bit positive integer hash
  **/
-const murmurhash3_32_gc = (key: string, seed: number): number => {
+const murmurhash3_32_gc = (key, seed) => {
   // eslint-disable-next-line no-unused-vars
   let remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i;
 
