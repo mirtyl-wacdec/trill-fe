@@ -25,10 +25,10 @@ export interface Engagement {
 export interface ReactMap {
   [key: Ship]: string; // emoji
 }
-interface TextContent {
+export interface TextContent {
   text: string;
 }
-interface URLContent {
+export interface URLContent {
   url: string;
 }
 interface MentionContent {

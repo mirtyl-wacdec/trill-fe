@@ -9,7 +9,7 @@ import {
   VIDEO_REGEX,
   TWITTER_REGEX,
   REF_REGEX,
-  IMAGE_REGEX
+  IMAGE_REGEX,
 } from "../logic/regex";
 
 export default function () {
@@ -30,19 +30,15 @@ export default function () {
     const vid = e.target.value.match(VIDEO_REGEX);
     const tw = e.target.value.match(TWITTER_REGEX);
     const ref = e.target.value.match(REF_REGEX);
-    if (img) handleImage(img)
+    if (img) handleImage(img);
     else if (vid) setVideo(vid[0]);
-    else if (aud) setAudio(aud[0])
-    else if (tw) setQuote(tw[0])
-    else if(ref) setQuote(ref[0])
-    else if (e.target.value.length === 0)
-    setError("Empty post")
-    else if ((e.target.value.length) < 257)
-    setText(e.target.value)
+    else if (aud) setAudio(aud[0]);
+    else if (tw) setQuote(tw[0]);
+    else if (ref) setQuote(ref[0]);
+    else if (e.target.value.length < 257) setText(e.target.value);
   }
-  function handleImage(matches: string[]){
-    if (images.length < 9)
-    setImages(state => [...state, ...matches])
+  function handleImage(matches: string[]) {
+    if (images.length < 9) setImages((state) => [...state, ...matches]);
   }
   function popImg(which: number) {
     setImages((i) => i.filter((img, ind) => ind !== which));
@@ -50,17 +46,27 @@ export default function () {
   async function poast() {
     setPoking(true);
     const contents = tokenize(text);
-    console.log(contents, "contents posted")
-    const r = await addPost(contents, null);
-    console.log(r, "r")
-    if (r) setText("");
-//    quit();
+    const imgs = images.map(i => {
+      return {url: i}
+    })
+    console.log(contents, "contents posted");
+    const withMedia = [...contents, ...imgs]
+    const r = await addPost(withMedia, null);
+    console.log(r, "r");
+    if (r) reset();
+    //    quit();
+  }
+  function reset(){
+    setText("");
+    setVideo("");
+    setAudio("");
+    setImages([]);
   }
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
       setFiles(d.clipboardData.files);
-      console.log(d, "d")
-      console.log(files, "files")
+      console.log(d, "d");
+      console.log(files, "files");
       // upload_file();
     } else {
       return;
@@ -83,14 +89,45 @@ export default function () {
           placeholder="Type here"
           onInput={handleInput}
         ></textarea>
+                  <div id="media-preview">
+            {!!video.length && (
+              <video
+                onClick={() => setVideo("")}
+                className="vid-preview"
+                src={video}
+              />
+            )}
+            {!!audio.length && (
+              <audio
+                onClick={() => setAudio("")}
+                className="aud-preview"
+                src={video}
+              />
+            )}
+            {images.map((img, i) => {
+              return (
+                <img
+                  id={`prev-${i}`}
+                  key={`${img}-${i}`}
+                  onClick={() => popImg(i)}
+                  className={`img-preview prevs-${images.length}`}
+                  src={img}
+                  alt=""
+                />
+              );
+            })}
+          </div>
+
         <div className="composer-footer">
           <p>
             {text.length}/{256}
           </p>
           <div className="composer-icons">
             <img className="clickable" src={add_image} alt="" />
-            <img className="clickable" src={emoji} alt="" />
-            <button onClick={poast} className="clickable">Poast</button>
+            {/* <img className="clickable" src={emoji} alt="" /> */}
+            <button onClick={poast} className="clickable">
+              Poast
+            </button>
           </div>
         </div>
       </div>

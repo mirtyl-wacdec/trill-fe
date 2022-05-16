@@ -1,8 +1,5 @@
 import type { Node } from "../../logic/types";
 import { Svg, Info, LeapArrow, Messages, Smiley, Swap } from "../../ui/Icons";
-import reply from "../../icons/reply.svg"
-import quote from "../../icons/quote.svg"
-import repost from "../../icons/repost.svg"
 import { useState } from "react";
 interface FooterProps {
   node: Node;

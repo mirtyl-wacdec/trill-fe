@@ -114,7 +114,9 @@ a,p,h1,h2,h3,h4,h5,h6{
   color: black;
 }
 #leftbar .composer .textarea{
-  height: 200px;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
   width: 100%;
   background-color: var(--grey-background);
   padding: 1rem;
@@ -122,9 +124,45 @@ a,p,h1,h2,h3,h4,h5,h6{
 }
 #leftbar .composer .textarea textarea{
   resize: none;
-  height: 85%;
+  min-height: 160px;
   background-color: transparent;
   border: none;
+}
+#leftbar .composer #media-preview{
+  flex-grow: 1;
+}
+#leftbar .composer .vid-preview{
+  display: block;
+  max-width: 300px;
+  max-height: 200px;
+  margin: auto;
+}
+#leftbar .composer .prevs-1{
+  width: 100%;
+}
+#leftbar .composer .prevs-2{
+  width: 50%;
+}
+#leftbar .composer .prevs-3{
+  width: 50%;
+}
+#leftbar .composer .prevs-4{
+  width: 50%;
+}
+#leftbar .composer .prevs-5{
+  width: 33%;
+}
+#leftbar .composer .prevs-6{
+  width: 33%;
+}
+#leftbar .composer .prevs-7{
+  width: 33%;
+}
+#leftbar .composer .prevs-8{
+  width: 33%;
+}
+#leftbar .composer .prevs-9{
+  width: 33%;
 }
 #leftbar .composer-footer{
   display: flex;
@@ -279,6 +317,42 @@ a,p,h1,h2,h3,h4,h5,h6{
 .body > .mention:hover{
   cursor: pointer;
   text-decoration: underline;
+}
+.body-media{
+  width: 100%;
+  max-height: 400px;
+}
+.body-media img{
+  margin: 3px;
+}
+.body-img-1-of-1{
+  max-width: 100%;
+  max-height: inherit;
+}
+.body-img-1-of-2{
+  max-width: 48.5%;
+  max-height: inherit;
+}
+.body-img-1-of-3{
+  max-width: 48.5%;
+}
+.body-img-1-of-4{
+  max-width: 48.5%;
+}
+.body-img-1-of-5{
+  max-width: 31%;
+}
+.body-img-1-of-6{
+  max-width: 31%;
+}
+.body-img-1-of-7{
+  max-width: 31%;
+}
+.body-img-1-of-8{
+  max-width: 31%;
+}
+.body-img-1-of-9{
+  max-width: 31%;
 }
 .post footer{
   display: flex;

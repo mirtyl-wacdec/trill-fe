@@ -10,8 +10,7 @@ export default function(){
   console.log(username, "u")
   useEffect(()=> {
     scryFeed("~"+username as string)
-  }, [])
-  console.log(activeGraph, "ag")
+  }, [username])
   return(
     <div id="main-column">
       <header>

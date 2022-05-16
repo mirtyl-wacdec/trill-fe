@@ -2,10 +2,13 @@ import { Link } from "react-router-dom";
 import search from "../icons/search.svg";
 import useLocalState from "../logic/state";
 import { isValidPatp } from "../logic/ob/co";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import Sigil from "./Sigil";
+import {useLocation} from "react-router-dom";
 
 export default function () {
+  let loc = useLocation();
+  useEffect(()=> setInput(""), [loc])
   const { our, scryFollows, follows } = useLocalState();
   const [candidates, setCandidates] = useState<string[]>([]);
   const [input, setInput] = useState("");

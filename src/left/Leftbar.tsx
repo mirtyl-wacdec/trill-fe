@@ -5,7 +5,6 @@ import lists from "../icons/lists.svg";
 import dms from "../icons/dms.svg";
 import notes from "../icons/notes.svg";
 import pals from "../icons/pals.svg";
-import search from "../icons/search.svg";
 import { useState } from "react";
 import MiniComposer from "./MiniComposer";
 import Searchbox from "../ui/Searchbox";
