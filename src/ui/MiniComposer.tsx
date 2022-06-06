@@ -11,8 +11,10 @@ import {
   REF_REGEX,
   IMAGE_REGEX,
 } from "../logic/regex";
+import useLocalState from "../logic/state";
 
 export default function () {
+  const { our } = useLocalState();
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,17 +48,17 @@ export default function () {
   async function poast() {
     setPoking(true);
     const contents = tokenize(text);
-    const imgs = images.map(i => {
-      return {url: i}
-    })
+    const imgs = images.map((i) => {
+      return { url: i };
+    });
     console.log(contents, "contents posted");
-    const withMedia = [...contents, ...imgs]
+    const withMedia = [...contents, ...imgs];
     const r = await addPost(withMedia, null);
     console.log(r, "r");
     if (r) reset();
     //    quit();
   }
-  function reset(){
+  function reset() {
     setText("");
     setVideo("");
     setAudio("");
@@ -76,9 +78,9 @@ export default function () {
   return (
     <div className="composer">
       <div className="metadata">
-        <Sigil patp={"~zod"} size={30} />
+        <Sigil patp={our} size={30} />
         <div className="patp">
-          <p className="patp-string">~zod</p>
+          <p className="patp-string">{our}</p>
           <p className="clickable">Edit Profile</p>
         </div>
         <p className="clickable composer-metadata-icon">...</p>
@@ -89,34 +91,34 @@ export default function () {
           placeholder="Type here"
           onInput={handleInput}
         ></textarea>
-                  <div id="media-preview">
-            {!!video.length && (
-              <video
-                onClick={() => setVideo("")}
-                className="vid-preview"
-                src={video}
+        <div id="media-preview">
+          {!!video.length && (
+            <video
+              onClick={() => setVideo("")}
+              className="vid-preview"
+              src={video}
+            />
+          )}
+          {!!audio.length && (
+            <audio
+              onClick={() => setAudio("")}
+              className="aud-preview"
+              src={video}
+            />
+          )}
+          {images.map((img, i) => {
+            return (
+              <img
+                id={`prev-${i}`}
+                key={`${img}-${i}`}
+                onClick={() => popImg(i)}
+                className={`img-preview prevs-${images.length}`}
+                src={img}
+                alt=""
               />
-            )}
-            {!!audio.length && (
-              <audio
-                onClick={() => setAudio("")}
-                className="aud-preview"
-                src={video}
-              />
-            )}
-            {images.map((img, i) => {
-              return (
-                <img
-                  id={`prev-${i}`}
-                  key={`${img}-${i}`}
-                  onClick={() => popImg(i)}
-                  className={`img-preview prevs-${images.length}`}
-                  src={img}
-                  alt=""
-                />
-              );
-            })}
-          </div>
+            );
+          })}
+        </div>
 
         <div className="composer-footer">
           <p>

@@ -39,5 +39,46 @@ export async function setPolicyList(action: "b" | "ub" | "a" | "ua", sense: "rea
    const ub = {unblock: obj};
    const a = {allow: obj};
    const ua = {unallow: obj};
+}
 
+export async function fetchContact(patp: string){
+  const {airlock, our} = useLocalState.getState()
+  return airlock.scry({app: "contact-store", path: `/contact/${patp}`})
+}
+export async function follow(ship: Ship, fn: Function) {
+  const {airlock, our} = useLocalState.getState()
+  console.log(airlock, "airlock")
+  let sub: number;
+  const handleData = (data: any) => {
+    fn(data)
+  };
+  const res = await airlock.subscribe({
+    app: "feed-pull-hook",
+    path: `/join/${ship}`,
+    event: handleData
+  });
+  console.log(res, "subscribed to feed-pull-hook/join ")
+  sub = res;
+}
+
+export async function unfollow(ship: Ship) {
+  const {airlock, our} = useLocalState.getState()
+  const json = { forget: ship };
+  const res = await airlock.poke({
+    app: "feed-pull-hook",
+    mark: "ufa-follow-action",
+    json: json,
+  });
+  return res;
+}
+
+export async function sendDM(ship: Ship){
+  const {airlock, our} = useLocalState.getState()
+  const json = {};
+  const res = await airlock.poke({
+    app: "dm-hook",
+    mark: "graph-update-3",
+    json: json,
+  });
+  return res;
 }

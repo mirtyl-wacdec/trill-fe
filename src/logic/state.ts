@@ -3,6 +3,10 @@ import { bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
 import type { Node, ID, Ship, Graph } from "./types";
+interface FollowAttempt {
+  ship: Ship;
+  timestamp: number;
+}
 
 export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
 
@@ -24,16 +28,21 @@ export interface LocalState {
   init: () => void;
   fans: Set<Ship>;
   follows: Set<Ship>;
+  follow_attempts: FollowAttempt[];
   activeFeed: "timeline" | "notifications" | "not-follow" | "not-found" | Ship;
   activeGraph: Graph;
   scryFeed: (feed: string) => Promise<void>;
   scryFollows: () => Promise<void>;
   subscribeFeed: () => Promise<void>;
   subscribeHark: () => Promise<void>;
+  subscribeJoins: () => Promise<void>;
   policy: Policy;
   scryPolicy: () => Promise<void>;
   changePolicy: () => Promise<void>;
   scryTimeline: () => Promise<void>;
+  preview: Ship;
+  setPreview: (s: Ship) => void;
+  targetPost: Node | null;
 }
 interface Key {
   ship: Ship;
@@ -57,7 +66,7 @@ function wait(ms: number) {
 type LocalStateZus = LocalState & State;
 
 const useLocalState = create<LocalStateZus>((set, get) => ({
-  our: "~zod", //(window as any).ship || "~put",
+  our: "~nec", //(window as any).ship || "~put",
   theme: "auto",
   fans: new Set([]),
   follows: new Set([]),
@@ -72,8 +81,10 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   errorCount: 0,
   // XX this logic should be handled by eventsource lib, but channel
   // resume doesn't work properly
-  airlock: bootstrapApi(),
-  init: () => set({ airlock: bootstrapApi() }),
+  airlock: new Urbit(""),
+  init: () => {
+    const airlock = bootstrapApi()
+    set({ airlock: airlock, our: "~"+airlock.ship as string })},
   reconnect: async () => {
     const airlock = get().airlock;
     const { errorCount } = get();
@@ -107,18 +118,18 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   activeGraph: {},
   scryFeed: async (feed: Ship) => {
     const airlock = get().airlock;
-    const path = `/feed/${feed}`
+    const path = `/feed/${feed}`;
     const res = await airlock.scry({ app: "feed-store", path: path });
     console.log(res, "scried feed");
     if ("feed-scry" in res)
-    set({ 
-      activeGraph: res["feed-scry"]["feed"],
-      activeFeed: feed
-   });
-   else if ("not-follow" in res)
-     set({
-       activeFeed: "not-follow"
-     })
+      set({
+        activeGraph: res["feed-scry"]["feed"],
+        activeFeed: feed,
+      });
+    else if ("not-follow" in res)
+      set({
+        activeFeed: "not-follow",
+      });
   },
   scryTimeline: async () => {
     const airlock = get().airlock;
@@ -130,40 +141,67 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "feed-store", path: "/following" });
     console.log(res, "scried follows");
+    console.log(airlock)
     // set({
     //   fans: res["feed-scry"]["follows"],
     //   follows: res["feed-scry"]["fans"],
     // });
-    set({follows: new Set(res["following"])})
+    set({ follows: new Set(res["following"]) });
   },
   subscribeFeed: async () => {
     const airlock = get().airlock;
     const reducer = (data: any) => {
-      const {activeFeed, activeGraph} = get();
-      console.log(activeFeed, "af")
-      console.log(data, "data")
-      if ("thread-updated" in data["feed-post-update"]){
-        if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed){
-          const index : ID = data["feed-post-update"]["thread-updated"].thread.id
-          const toAdd : any = {};
-          toAdd[index] = data["feed-post-update"]["thread-updated"].thread;
-          const newGraph = {...activeGraph, ...toAdd};
-          set({activeGraph: newGraph})
-        }
-      }
-      
+      const { activeFeed, activeGraph } = get();
+      console.log(activeFeed, "af");
+      console.log(data, "data");
+      // if ("thread-updated" in data["feed-post-update"]){
+      //   if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed){
+      //     const index : ID = data["feed-post-update"]["thread-updated"].thread.id
+      //     const toAdd : any = {};
+      //     toAdd[index] = data["feed-post-update"]["thread-updated"].thread;
+      //     const newGraph = {...activeGraph, ...toAdd};
+      //     set({activeGraph: newGraph})
+      //   }
+      // }
+
       // if (activeFeed === data.ship )
-
-
-    }
-    const res = await airlock.subscribe({ app: "feed-store", path: "/frontend", event: reducer });
-    console.log(res, "subscribed")
+    };
+    const res = await airlock.subscribe({
+      app: "feed-store",
+      path: "/frontend",
+      event: reducer,
+      err: (err: any, id: string) => console.log(err, "error on feed-store subscription"),
+      quit: (data: any) => console.log(data, "feed-store subscription kicked")
+    });
+    console.log(res, "subscribed to feed store");
+    console.log(airlock, "airlock")
   },
   subscribeHark: async () => {},
-  policy: { 
-    read: { allow: [] }, 
-    write: { allow: [] } 
+  policy: {
+    read: { allow: [] },
+    write: { allow: [] },
   },
+  subscribeJoins: async () => {
+    const airlock = get().airlock;
+    const reducer = (data: any) => {
+      console.log(data, "joins");
+      if ("followed" in data["trill-follow-update"]) {
+        const patp = data["trill-follow-update"].followed;
+        const fa = { ship: patp, timestamp: Date.now() };
+        set((state) => ({ follow_attempts: [...state.follow_attempts, fa] }));
+      }
+    };
+    const res = await airlock.subscribe({
+      app: "feed-pull-hook",
+      path: "/joins",
+      event: reducer,
+      err: (err: any, id: string) => console.log(err, "error on joins subscription"),
+      quit: (data: any) => console.log(data, "joins subscription kicked")
+    });
+    console.log(res, "subscribed to joins");
+    console.log(airlock, "airlock")
+  },
+  follow_attempts: [],
   scryPolicy: async () => {
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "feed-store", path: "/policy" });
@@ -172,6 +210,9 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     set({ policy: policy });
   },
   changePolicy: async () => {},
+  preview: "",
+  setPreview: (patp: Ship) => set({ preview: patp }),
+  targetPost: null,
 }));
 
 export default useLocalState;

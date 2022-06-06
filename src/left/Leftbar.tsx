@@ -6,7 +6,7 @@ import dms from "../icons/dms.svg";
 import notes from "../icons/notes.svg";
 import pals from "../icons/pals.svg";
 import { useState } from "react";
-import MiniComposer from "./MiniComposer";
+import MiniComposer from "../ui/MiniComposer";
 import Searchbox from "../ui/Searchbox";
 
 function Leftbar() {
@@ -45,12 +45,7 @@ function Leftbar() {
           </div>
         </Link>
       </div>
-      <div className="app-drawer applet">
-        <div className="title">
-          <p>Apps</p>
-          <p className="bar"></p>
-        </div>
-      </div>
+
       <div className="composer-container applet">
         <div className="title">
           <p>You</p>
@@ -58,7 +53,12 @@ function Leftbar() {
         </div>
         <MiniComposer />
       </div>
-       <Searchbox />
+      <div className="app-drawer applet">
+        <div className="title">
+          <p>Apps</p>
+          <p className="bar"></p>
+        </div>
+      </div>
       <div className="footer">
         <p>Trill</p>
         <p className="version">0.1.0</p>

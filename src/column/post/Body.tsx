@@ -44,8 +44,8 @@ function Body({ contents }: BodyProps) {
       })}
       </div>
       <div className="body-media">
-        {media.map(m => {
-          return <img className={`body-img body-img-1-of-${media.length}`} src={m.url} alt="" />
+        {media.map((m, i) => {
+          return <img key={m.url+i} className={`body-img body-img-1-of-${media.length}`} src={m.url} alt="" />
         })}
       </div>
     </div>

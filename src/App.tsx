@@ -19,17 +19,21 @@ import Error from "./errors/404";
 function App() {
   const [writing, setWriting] = useState(false);
   const {
+    init,
     airlock,
     scryPolicy,
     scryFeed,
     scryFollows,
     subscribeFeed,
     subscribeHark,
+    subscribeJoins
   } = useLocalState();
   useEffect(() => {
+    init(),
     console.log(airlock, "airlock");
     scryPolicy();
     subscribeFeed();
+    subscribeJoins();
     // scryFollows();
   }, []);
   return (

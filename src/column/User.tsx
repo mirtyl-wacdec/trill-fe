@@ -1,30 +1,34 @@
-import {useState, useEffect} from "react";
-import {Svg, Search} from "../ui/Icons"
+import { useState, useEffect } from "react";
+import { Svg, Search } from "../ui/Icons";
 import useLocalState from "../logic/state";
 import Post from "./post/Post";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
+import FollowPrompt from "../following/FollowPrompt";
 
-export default function(){
-  const {scryFeed, activeGraph, activeFeed} = useLocalState();
-  const {username} = useParams();
-  console.log(username, "u")
-  useEffect(()=> {
-    scryFeed("~"+username as string)
-  }, [username])
-  return(
+export default function () {
+  const { scryFeed, activeGraph, activeFeed } = useLocalState();
+  const { username } = useParams();
+  console.log(username, "u");
+  console.log(activeFeed, "af");
+  useEffect(() => {
+    scryFeed(("~" + username) as string);
+  }, [username]);
+  return (
     <div id="main-column">
       <header>
-        <h4 id="column-title">{"~"+username}</h4>
+        <h4 id="column-title">{"~" + username}</h4>
       </header>
-      <div id="feed">
-        {Object.keys(activeGraph)
-        .sort((a, b) => activeGraph[b].post.time - activeGraph[a].post.time)
-        .map(index => {
-          return(
-          <Post key={index} node={activeGraph[index]} />
-          )
-        })}
+      {activeFeed === "not-follow" ? (
+        <FollowPrompt username={username as string} />
+      ) : (
+        <div id="feed">
+          {Object.keys(activeGraph)
+            .sort((a, b) => activeGraph[b].post.time - activeGraph[a].post.time)
+            .map((index) => {
+              return <Post key={index} node={activeGraph[index]} />;
+            })}
         </div>
-      </div>
-  )
+      )}
+    </div>
+  );
 }
