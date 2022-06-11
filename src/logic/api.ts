@@ -6,8 +6,8 @@ import Urbit from "@urbit/http-api";
 // window.airlock = airlock;
 
 export function bootstrapApi(): Urbit {
-  const airlock = new Urbit("http://localhost:8081");
-  airlock.ship = (window as any).ship || "mitmun-botlyt";
+  const airlock = new Urbit("http://localhost:8080");
+  airlock.ship = (window as any).ship;
   airlock.desk = "trill";
   airlock.verbose = true;
   airlock.onError = (e) => {

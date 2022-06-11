@@ -66,7 +66,7 @@ function wait(ms: number) {
 type LocalStateZus = LocalState & State;
 
 const useLocalState = create<LocalStateZus>((set, get) => ({
-  our: "~nec", //(window as any).ship || "~put",
+  our: (window as any).ship || "~mitmun-botlyt",
   theme: "auto",
   fans: new Set([]),
   follows: new Set([]),
