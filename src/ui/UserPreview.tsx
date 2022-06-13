@@ -18,6 +18,8 @@ export default function ({ patp }: UserPreviewProps) {
   const [error, setError] = useState(false);
   const [DMSent, setDMSent] = useState(false);
   useEffect(() => {
+    setError(false);
+    setBio("");
     fetchContact(patp)
       .then((res) => {
         setBio(res["contact-update"].add.contact.bio);
@@ -26,7 +28,7 @@ export default function ({ patp }: UserPreviewProps) {
       .catch((err) => {
         setBio("");
       });
-  }, []);
+  }, [patp]);
   //   {
   //     "add": {
   //         "ship": "zod",
@@ -78,12 +80,15 @@ export default function ({ patp }: UserPreviewProps) {
   function quitPrompt(e: React.MouseEvent<HTMLButtonElement>) {
     e.currentTarget.innerText = "Following";
   }
+  function openFeed(){
+    if (follows.has(patp)) navigate(`./${patp}`);
+  }
   return (
     <div className="user-preview">
       <div className="metadata">
         <Sigil patp={patp} size={30} />
         <div className="patp">
-          <p className="patp-string">{patp}</p>
+          <p onClick={openFeed} className="clickable patp-string">{patp}</p>
           <p className="follows-you">
             {fans.has(patp) ? "Follows you" : "Doesn't follow you"}
           </p>
@@ -117,6 +122,7 @@ export default function ({ patp }: UserPreviewProps) {
           </button>
         </div>
       )}
+      {/* TODO with content distribution
       <div className="user-data">
         <div className="lists clickable">
           <p>Lists</p>
@@ -127,7 +133,7 @@ export default function ({ patp }: UserPreviewProps) {
         <div className="following clickable">
           <p>Following</p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
