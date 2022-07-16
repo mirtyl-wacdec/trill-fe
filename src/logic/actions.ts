@@ -17,6 +17,16 @@ export async function scryNodeFull(host: Ship, id: ID): Promise<any>{
   return res
 }
 
+export async function scryDMs(){
+  const {airlock, our} = useLocalState.getState()
+  const path = `/graph/${our}/dm-inbox/node/children/lone/~/~.json`;
+  const res = await airlock.scry({ app: "graph-store", path: path });
+  return res
+}
+
+
+// /scries
+
 export async function addPost(contents: Content[], parent: Node | undefined) {
   const {airlock, our} = useLocalState.getState()
   const json = {

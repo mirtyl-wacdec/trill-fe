@@ -8,11 +8,12 @@ import Home from "./column/Home";
 import User from "./column/User";
 import Timeline from "./column/Timeline";
 import Policy from "./column/Policy";
+import Messages from "./column/Messages";
 import Notifications from "./column/Notifications";
 import Lists from "./column/Lists";
 import List from "./column/List";
 import Thread from "./column/Thread";
-import Composer from "./composer/Composer";
+import Twatter from "./apps/twatter/Index";
 import PlayArea from "./playground/PlayArea";
 import Error from "./errors/404";
 
@@ -47,10 +48,12 @@ function App() {
           <Route path="timeline" element={<Timeline />} />
           <Route path="home" element={<Home />} />
           <Route path="policy" element={<Policy />} />
+          <Route path="messages" element={<Messages />} />
           <Route path="notifications" element={<Notifications />} />
           <Route path="lists" element={<Lists />}>
             <Route path=":listname" element={<List />} />
           </Route>
+          <Route path="apps/twitter" element={<Twatter />} />
           <Route path={`~:username`} element={<User />} />
           <Route path={`~:username/:id`} element={<Thread />} />
           <Route path=":else" element={<Error />} />

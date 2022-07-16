@@ -55,6 +55,18 @@ function ReactionBox({ node }: RBProps) {
       <span onClick={() => doReact(`❤️`)} className="emoji">
         ❤️
       </span>
+      <span onClick={() => doReact(`😭`)} className="emoji">
+      😭
+      </span>
+      <span onClick={() => doReact(`🥳`)} className="emoji">
+      🥳
+      </span>
+      <span onClick={() => doReact(`😱`)} className="emoji">
+      😱
+      </span>
+      <span onClick={() => doReact(`🤢`)} className="emoji">
+        🤢
+      </span>
     </div>
   );
 }

@@ -30,9 +30,9 @@ function Policy() {
   }
 
   return (
-    <div id="main">
-      <header>
-        <p id="column-title">Policy</p>
+    <div id="main-column">
+    <header>
+        <h4 id="column-title">Settings</h4>
       </header>
       <div id="policy">
         <div className="tab-selector">

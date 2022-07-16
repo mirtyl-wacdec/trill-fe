@@ -85,12 +85,25 @@ a,p,h1,h2,h3,h4,h5,h6{
 #leftbar .footer{
   display: flex;
   position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  width: 100%;
+  background-color: white;
 }
 #leftbar .version{
   margin-left: 2rem;
   color: grey;
+}
+
+/* apps at leftbar */
+#leftbar .app{
+  display: flex;
+  cursor: pointer;
+}
+#leftbar .app-icon{
+  width: 30px;
+  margin-right: 2rem;
 }
 .composer > .metadata{
   display: flex;

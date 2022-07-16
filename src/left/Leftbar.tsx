@@ -5,6 +5,7 @@ import lists from "../icons/lists.svg";
 import dms from "../icons/dms.svg";
 import notes from "../icons/notes.svg";
 import pals from "../icons/pals.svg";
+import twatter from "../icons/twatter.svg"
 import { useState } from "react";
 import MiniComposer from "../ui/MiniComposer";
 import Searchbox from "../ui/Searchbox";
@@ -35,6 +36,12 @@ function Leftbar() {
         <Link className="link" to="/policy">
           <div className="left-menu-item">
             <img className="left-menu-icon" src={dms} alt="" />
+            <p>Settings</p>
+          </div>
+        </Link>
+        <Link className="link" to="/messages">
+          <div className="left-menu-item">
+            <img className="left-menu-icon" src={dms} alt="" />
             <p>Messages</p>
           </div>
         </Link>
@@ -58,6 +65,12 @@ function Leftbar() {
           <p>Apps</p>
           <p className="bar"></p>
         </div>
+        <Link className="link" to="/apps/twitter">
+        <div className="app">
+          <img className="app-icon" src={twatter} alt="" />
+          <p>Twitter</p>
+        </div>
+        </Link>
       </div>
       <div className="footer">
         <p>Trill</p>
