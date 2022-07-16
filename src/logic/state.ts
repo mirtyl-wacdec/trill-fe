@@ -4,6 +4,7 @@ import produce from "immer";
 import Urbit from "@urbit/http-api";
 import type { Node, FullNode, ID, Ship, Graph } from "./types";
 import { scryNodeFlat, scryNodeFull } from "./actions";
+import { NullIcon } from "../ui/Icons";
 interface FollowAttempt {
   ship: Ship;
   timestamp: number;
@@ -49,10 +50,12 @@ export interface LocalState {
   setPreview: (s: Ship) => void;
   replyTo: Node | null;
   quoteTo: Node | null;
-  setReply: (n: Node) => void;
-  setQuote: (n: Node) => void;
+  setReply: (n: Node | null) => void;
+  setQuote: (n: Node | null) => void;
   highlighted: Node | null;
   resetHighlighted: () => void;
+  reactingTo: Node | null;
+  setReacting: (n: Node | null) => void;
 }
 interface Key {
   ship: Ship;
@@ -96,7 +99,8 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   init: () => {
     const airlock = bootstrapApi();
 
-    set({ airlock: airlock, our: "~"+airlock.ship as string })},
+    set({ airlock: airlock, our: "~" + airlock.ship as string })
+  },
   reconnect: async () => {
     const airlock = get().airlock;
     const { errorCount } = get();
@@ -149,7 +153,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     const res = await scryNodeFull(host, id);
     console.log(res, "scried thread")
     // TODO error handling 
-    if ("full-node-scry" in res){
+    if ("full-node-scry" in res) {
       set({
         activeFeed: "thread",
         activeThread: res["full-node-scry"],
@@ -163,11 +167,11 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   scryTimeline: async () => {
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
-    set({ 
+    set({
       activeGraph: res.timeline.timeline,
       activeFeed: "timeline",
       highlighted: null
-     });
+    });
   },
   scryFollows: async () => {
     const airlock = get().airlock;
@@ -178,11 +182,11 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     // });
     set({ follows: new Set(res["following"]) });
   },
-  scryLists: async () =>{
+  scryLists: async () => {
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "list-store", path: "/lists" });
     console.log(res, "scried lists");
-    set({ lists: res.lists});
+    set({ lists: res.lists });
   },
   subscribeFeed: async () => {
     const airlock = get().airlock;
@@ -190,15 +194,18 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       const { activeThread, activeFeed, activeGraph } = get();
       console.log(activeFeed, "af");
       console.log(data, "data");
-      if ("thread-updated" in data["feed-post-update"]){
-        if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed)
-          liveUpdate(data, activeGraph, set);
-        else if(data["feed-post-update"]["thread-updated"]["host"] !== get().our && activeFeed === "timeline")
-          liveUpdate(data, activeGraph, set)
-        else if(activeFeed === "thread")
-          liveUpdateThread(data, activeThread, set)
+      if ("feed-post-update" in data) {
+        if ("thread-updated" in data["feed-post-update"]) {
+          if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed)
+            liveUpdate(data, activeGraph, set);
+          else if (data["feed-post-update"]["thread-updated"]["host"] !== get().our && activeFeed === "timeline")
+            liveUpdate(data, activeGraph, set)
+          else if (activeFeed === "thread")
+            liveUpdateThread(data, activeThread, set)
+        }
+      } else if ("feed-engagement-update" in data){
+        console.log(data["feed-engagement-update"])
       }
-
       // if (activeFeed === data.ship )
     };
     const res = await airlock.subscribe({
@@ -211,7 +218,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     console.log(res, "subscribed to feed store");
     console.log(airlock, "airlock")
   },
-  subscribeHark: async () => {},
+  subscribeHark: async () => { },
   policy: {
     read: { allow: [] },
     write: { allow: [] },
@@ -244,29 +251,31 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     const policy = res.policy;
     set({ policy: policy });
   },
-  changePolicy: async () => {},
+  changePolicy: async () => { },
   preview: "",
   setPreview: (patp: Ship) => set({ preview: patp }),
   replyTo: null,
   quoteTo: null,
-  setReply: (node: Node) => set({replyTo: node, quoteTo: null, highlighted: node}),
-  setQuote: (node: Node) => set({quoteTo: node, replyTo: null, highlighted: node}),
+  setReply: (node: Node | null) => set({ replyTo: node, quoteTo: null, highlighted: node, reactingTo: null }),
+  setQuote: (node: Node | null) => set({ quoteTo: node, replyTo: null, highlighted: node, reactingTo: null  }),
   highlighted: null,
-  resetHighlighted: () => set({highlighted: null})
+  resetHighlighted: () => set({ highlighted: null }),
+  reactingTo: null,
+  setReacting: (n) => set({highlighted: n, reactingTo: n, replyTo: null, quoteTo: null})
 }));
 
 export default useLocalState;
 
-function liveUpdate(data: any, activeGraph: any, set: any){
-  const index : ID = data["feed-post-update"]["thread-updated"].thread.id
-  const toAdd : any = {};
+function liveUpdate(data: any, activeGraph: any, set: any) {
+  const index: ID = data["feed-post-update"]["thread-updated"].thread.id
+  const toAdd: any = {};
   toAdd[index] = data["feed-post-update"]["thread-updated"].thread;
-  const newGraph = {...activeGraph, ...toAdd};
-  set({activeGraph: newGraph})
+  const newGraph = { ...activeGraph, ...toAdd };
+  set({ activeGraph: newGraph })
 }
-function liveUpdateThread(data: any, activeThread: any, set: any){
+function liveUpdateThread(data: any, activeThread: any, set: any) {
   if (data["feed-post-update"]["thread-updated"].thread.id === activeThread.id)
-  set({activeThread: data["feed-post-update"]["thread-updated"].thread});
+    set({ activeThread: data["feed-post-update"]["thread-updated"].thread });
 }
 
 // http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json

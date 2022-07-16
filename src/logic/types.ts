@@ -2,7 +2,7 @@ export interface Graph {
   [keys: ID]: Node;
 }
 
-type Node = FlatNode | FullNode;
+export type Node = FlatNode | FullNode;
 export interface FlatNode {
   id: ID;
   post: Poast;

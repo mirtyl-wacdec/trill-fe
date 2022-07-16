@@ -24,6 +24,7 @@ export default function () {
         <div id="feed">
           {Object.keys(activeGraph)
             .sort((a, b) => activeGraph[b].post.time - activeGraph[a].post.time)
+            .filter(a => !activeGraph[a].post.parent)
             .map((index) => {
               return <Post key={index} node={activeGraph[index]} />;
             })}

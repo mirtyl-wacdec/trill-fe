@@ -35,6 +35,25 @@ export async function addPost(contents: Content[], parent: Node | undefined) {
   });
 }
 
+export async function addReact(ship: Ship, id: ID, reaction: string) {
+  const {airlock, our} = useLocalState.getState()
+  const json = {
+    "add-react": {
+      react: reaction,
+      pid: {
+        id: id,
+        host: ship,
+      },
+    },
+  };
+  console.log(json, "poke sent");
+  return airlock.poke({
+    app: "feed-push-hook",
+    mark: "ufa-post-action",
+    json: json,
+  });
+}
+
 export async function setPolicy(sense: "read" | "write", locked: boolean){
   const {airlock, our} = useLocalState.getState()
   const obj: any = {};

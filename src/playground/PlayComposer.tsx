@@ -12,10 +12,10 @@ import {
   IMAGE_REGEX,
 } from "../logic/regex";
 import useLocalState from "../logic/state";
-import type { Node, Content, ReferenceContent} from "../logic/types";
+import type { Node, Content, ReferenceContent } from "../logic/types";
 interface ComposerProps {
-  replyTo?: Node;
-  quote?: Node;
+  node: Node;
+  interaction: "reply" | "quote";
 }
 
 export default function (pr: ComposerProps) {
@@ -58,25 +58,25 @@ export default function (pr: ComposerProps) {
     });
     console.log(contents, "contents posted");
     const withMedia = [...contents, ...imgs];
-    if (pr.replyTo) poastReply(withMedia)
-    else if (pr.quote) poastQuote(withMedia)
-    else addPost(withMedia, undefined)
+    if (pr.interaction === "reply") poastReply(withMedia);
+    else if (pr.interaction === "quote") poastQuote(withMedia);
     //    quit();
   }
-  async function poastReply(c: Content[]){
-    const r = await addPost(c, pr.replyTo);
+  async function poastReply(c: Content[]) {
+    const r = await addPost(c, pr.node);
     console.log(r, "r");
     if (r) reset();
   }
-  async function poastQuote(c: Content[]){
-    const q = pr.quote as Node;
+  async function poastQuote(c: Content[]) {
+    const q = pr.node;
     const ref: ReferenceContent = {
       reference: {
-      feed: {
-        id: q.id,
-        host: q.post.host
-      }}
-    }
+        feed: {
+          id: q.id,
+          host: q.post.host,
+        },
+      },
+    };
     const contents = [ref, ...c];
     const r = await addPost(contents, undefined);
     console.log(r, "r");
@@ -101,27 +101,28 @@ export default function (pr: ComposerProps) {
 
   return (
     <div className="composer">
-      {(pr.quote || pr.replyTo) &&
-      <p onClick={()=> {
-        setReply(null), setQuote(null)
-      }}>
-        (x)</p>}
-      <div className="metadata">
-        <Sigil patp={our} size={30} />
-        <div className="patp">
-          <p className="patp-string">{our}</p>
-          <p className="clickable">Edit Profile</p>
-        </div>
-        <p className="clickable composer-metadata-icon">...</p>
+      <div className="composer-title">
+      <p
+        onClick={() => {
+          setReply(null), setQuote(null);
+        }}
+      >
+        (x)
+      </p>
+      <p>
+      {pr.interaction === "reply" 
+        ? `Replying to ${pr.node.post.author}`
+        : `Quoting ${pr.node.post.author}`
+        }
+      </p>
       </div>
+
       <div className="textarea">
-        {pr.replyTo && <Reply r={pr.replyTo} />}
         <textarea
           value={text}
           placeholder="Type here"
           onInput={handleInput}
         ></textarea>
-        {pr.quote && <Quote q={pr.quote} />}
         <div id="media-preview">
           {!!video.length && (
             <video

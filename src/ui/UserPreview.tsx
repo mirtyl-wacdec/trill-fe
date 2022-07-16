@@ -124,17 +124,17 @@ export default function ({ patp }: UserPreviewProps) {
           </button>
         </div>
       )}
-      <div className="user-data">
+      {/* <div className="user-data">
         <div onClick={showListInterface} className="lists clickable">
           <p>Lists</p>
         </div>
-        {/* <div className="followers clickable">
+        <div className="followers clickable">
           <p>Followers</p>
         </div>
         <div className="following clickable">
           <p>Following</p>
-        </div> */}
-      </div>
+        </div>
+      </div> */}
     </div>
   );
 }

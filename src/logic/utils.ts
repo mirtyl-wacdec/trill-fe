@@ -203,11 +203,25 @@ function makeIndex() {
   return (DA_UNIX_EPOCH + timeSinceEpoch).toString()
 }
 
-export function nodeToText(n: Node): string{
+export function nodeToText(n: Node): string {
   const c = n.post.contents;
   return c.reduce((acc, item) => {
     if ("text" in item) return acc + item.text
     else if ("mention" in item) return acc + item.mention
     else return acc
   }, "")
+}
+interface RepostData {
+  id: ID,
+  host: Ship
+}
+export function repostData(n: Node): RepostData | null {
+  if (n.post.contents.length === 1
+    && "reference" in n.post.contents[0]
+    && "feed" in n.post.contents[0].reference)
+    return {
+      id: n.post.contents[0].reference.feed.id,
+      host: n.post.contents[0].reference.feed.host
+    }
+  else return null
 }
