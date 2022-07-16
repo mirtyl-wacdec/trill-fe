@@ -24,6 +24,7 @@ function App() {
     scryPolicy,
     scryFeed,
     scryFollows,
+    scryLists,
     subscribeFeed,
     subscribeHark,
     subscribeJoins
@@ -32,6 +33,7 @@ function App() {
     init(),
     console.log(airlock, "airlock");
     scryPolicy();
+    scryLists();
     subscribeFeed();
     subscribeJoins();
     // scryFollows();
@@ -50,6 +52,7 @@ function App() {
             <Route path=":listname" element={<List />} />
           </Route>
           <Route path={`~:username`} element={<User />} />
+          <Route path={`~:username/:id`} element={<Thread />} />
           <Route path=":else" element={<Error />} />
         </Routes>
         <PlayArea />

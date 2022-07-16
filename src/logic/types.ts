@@ -1,10 +1,18 @@
 export interface Graph {
   [keys: ID]: Node;
 }
-export interface Node {
+
+type Node = FlatNode | FullNode;
+export interface FlatNode {
   id: ID;
   post: Poast;
   children: Array<ID>;
+  engagement: Engagement;
+};
+export interface FullNode {
+  id: ID;
+  post: Poast;
+  children: Graph;
   engagement: Engagement;
 };
 export type ID = string; // 
@@ -77,4 +85,10 @@ export interface ExternalContent {
     origin: "twatter" | "insta";
     content: string;
   };
+}
+
+type Service = "urbit" | "twitter";
+export interface ListEntry {
+  service: Service
+  username: string
 }

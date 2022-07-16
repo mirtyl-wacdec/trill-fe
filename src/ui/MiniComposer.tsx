@@ -3,7 +3,7 @@ import { useState } from "react";
 import add_image from "../icons/add_image.svg";
 import emoji from "../icons/emoji.png";
 import { addPost } from "../logic/actions";
-import { tokenize } from "../logic/utils";
+import { tokenize, nodeToText } from "../logic/utils";
 import {
   AUDIO_REGEX,
   VIDEO_REGEX,
@@ -12,8 +12,13 @@ import {
   IMAGE_REGEX,
 } from "../logic/regex";
 import useLocalState from "../logic/state";
+import type { Node, Content, ReferenceContent} from "../logic/types";
+interface ComposerProps {
+  replyTo?: Node;
+  quote?: Node;
+}
 
-export default function () {
+export default function (pr: ComposerProps) {
   const { our } = useLocalState();
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
@@ -45,7 +50,7 @@ export default function () {
   function popImg(which: number) {
     setImages((i) => i.filter((img, ind) => ind !== which));
   }
-  async function poast() {
+  function poast() {
     setPoking(true);
     const contents = tokenize(text);
     const imgs = images.map((i) => {
@@ -53,10 +58,29 @@ export default function () {
     });
     console.log(contents, "contents posted");
     const withMedia = [...contents, ...imgs];
-    const r = await addPost(withMedia, null);
+    if (pr.replyTo) poastReply(withMedia)
+    else if (pr.quote) poastQuote(withMedia)
+    else addPost(withMedia, undefined)
+    //    quit();
+  }
+  async function poastReply(c: Content[]){
+    const r = await addPost(c, pr.replyTo);
     console.log(r, "r");
     if (r) reset();
-    //    quit();
+  }
+  async function poastQuote(c: Content[]){
+    const q = pr.quote as Node;
+    const ref: ReferenceContent = {
+      reference: {
+      feed: {
+        id: q.id,
+        host: q.post.host
+      }}
+    }
+    const contents = [ref, ...c];
+    const r = await addPost(contents, undefined);
+    console.log(r, "r");
+    if (r) reset();
   }
   function reset() {
     setText("");
@@ -86,11 +110,13 @@ export default function () {
         <p className="clickable composer-metadata-icon">...</p>
       </div>
       <div className="textarea">
+        {pr.replyTo && <Reply r={pr.replyTo} />}
         <textarea
           value={text}
           placeholder="Type here"
           onInput={handleInput}
         ></textarea>
+        {pr.quote && <Quote q={pr.quote} />}
         <div id="media-preview">
           {!!video.length && (
             <video
@@ -133,6 +159,30 @@ export default function () {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+interface ReplyProps {
+  r: Node;
+}
+function Reply({ r }: ReplyProps) {
+  console.log(r, "r");
+  return (
+    <div className="reply-in-composer">
+      <p className="reply-metadata">Replying to: {r.post.author}</p>
+      <p className="reply-text">{nodeToText(r)}</p>
+    </div>
+  );
+}
+interface QuoteProps {
+  q: Node;
+}
+function Quote({ q }: QuoteProps) {
+  console.log(q, "q");
+  return (
+    <div className="quote-in-composer">
+      <p className="quote-metadata">{q.post.author}</p>
+      <p className="quote-text">{nodeToText(q)}</p>
     </div>
   );
 }

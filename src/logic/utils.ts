@@ -1,5 +1,8 @@
-import type {Content} from "./types";
-import {isValidPatp} from "./ob/co";
+import type { Content } from "./types";
+import { patp2dec, isValidPatp } from "./ob/co";
+import anyAscii from 'any-ascii';
+import type { Node } from "../logic/types";
+
 
 type tokenizerData = [string, taggedContent[]];
 type taggedContent = [string, Content];
@@ -15,7 +18,7 @@ export function tokenize(input: string): Content[] {
   // data = extract_reference(data)        // references
   data = extract_mention(data); // mentions
   data = extract_token(data, [
-    "url", 
+    "url",
     URL_REGEX
     // /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi,
   ]); // urls
@@ -25,10 +28,10 @@ function extract_text(data: tokenizerData): Content[] {
   const uids = data[1].map((tuple) => tuple[0].replace(/;/g, ""));
   console.log(uids);
   const ret = data[0].split(";;").map((section) => {
-    if (uids.includes(section)){
+    if (uids.includes(section)) {
       const r = data[1].find((tagged) => tagged[0] === `;;${section};;`);
       if (r) return r[1]
-      else return {text: section} // errr idk
+      else return { text: section } // errr idk
     }
     else return { text: section };
   });
@@ -62,11 +65,13 @@ function extract_mention(data: tokenizerData): tokenizerData {
     }, data);
 }
 
-import type {Ship, ID} from "./types";
-export function createReference(ship: Ship, id: ID){
-  return {reference: {
-    feed: {id: id, ship: ship}
-  }}
+import type { Ship, ID } from "./types";
+export function createReference(ship: Ship, id: ID) {
+  return {
+    reference: {
+      feed: { id: id, ship: ship }
+    }
+  }
 }
 
 export function addScheme(url: string) {
@@ -147,4 +152,62 @@ export function regexes() {
   const AUDIO_REGEX = new RegExp(/(mp3|wav|ogg)$/i);
   const VIDEO_REGEX = new RegExp(/(mov|mp4|ogv)$/i);
   return { img: IMAGE_REGEX, aud: AUDIO_REGEX, vid: VIDEO_REGEX };
+}
+
+export function stringToSymbol(str: string) {
+  const ascii = anyAscii(str);
+  let result = '';
+  for (let i = 0; i < ascii.length; i++) {
+    const n = ascii.charCodeAt(i);
+    if ((n >= 97 && n <= 122) || (n >= 48 && n <= 57)) {
+      result += ascii[i];
+    } else if (n >= 65 && n <= 90) {
+      result += String.fromCharCode(n + 32);
+    } else {
+      result += '-';
+    }
+  }
+  result = result.replace(/^[\-\d]+|\-+/g, '-');
+  result = result.replace(/^\-+|\-+$/g, '');
+  return result;
+}
+export function buildDM(author: Ship, recipient: Ship, text: string) {
+  const node: any = {};
+  const point = patp2dec(recipient);
+  console.log(point, "point")
+  const index = `/${point}/${makeIndex()}`;
+  node[index] = {
+    children: null,
+    post: {
+      author: author,
+      contents: [{ text: text }],
+      hash: null,
+      index: index,
+      signatures: [],
+      "time-sent": Date.now()
+    }
+  }
+  return {
+    app: "dm-hook", mark: "graph-update-3", json: {
+      "add-nodes": {
+        resource: { name: "dm-inbox", ship: author },
+        nodes: node
+      }
+    }
+  };
+}
+function makeIndex() {
+  const DA_UNIX_EPOCH = BigInt('170141184475152167957503069145530368000');
+  const DA_SECOND = BigInt('18446744073709551616');
+  const timeSinceEpoch = (BigInt(Date.now()) * DA_SECOND) / BigInt(1000);
+  return (DA_UNIX_EPOCH + timeSinceEpoch).toString()
+}
+
+export function nodeToText(n: Node): string{
+  const c = n.post.contents;
+  return c.reduce((acc, item) => {
+    if ("text" in item) return acc + item.text
+    else if ("mention" in item) return acc + item.mention
+    else return acc
+  }, "")
 }

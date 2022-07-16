@@ -10,10 +10,9 @@ interface UserPreviewProps {
 }
 export default function ({ patp }: UserPreviewProps) {
   let navigate = useNavigate();
-  const { scryFollows, fans, follows, follow_attempts } = useLocalState();
+  const { lists, scryFollows, fans, follows, follow_attempts } =
+    useLocalState();
   const [loading, setLoading] = useState(false);
-  console.log(fans, "fans");
-  console.log(follows, "follows");
   const [bio, setBio] = useState("");
   const [error, setError] = useState(false);
   const [DMSent, setDMSent] = useState(false);
@@ -50,21 +49,19 @@ export default function ({ patp }: UserPreviewProps) {
     if (res) scryFollows();
     setLoading(false);
   }
-  console.log(follow_attempts, "fa");
   async function startFollow() {
     setLoading(true);
     follow(patp, (data: any) => {
       setTimeout(() => {
         const followed = follow_attempts.find((fa) => {
           const elapsed = Date.now() - fa.timestamp;
-          return fa.ship == patp //&& elapsed < 100000;
+          return fa.ship == patp; //&& elapsed < 100000;
         });
         console.log(followed, "f");
         if (followed) {
           scryFollows();
           navigate(`./${patp}`);
-        }
-        else setError(true);
+        } else setError(true);
         setLoading(false);
       }, 5000);
     });
@@ -80,15 +77,20 @@ export default function ({ patp }: UserPreviewProps) {
   function quitPrompt(e: React.MouseEvent<HTMLButtonElement>) {
     e.currentTarget.innerText = "Following";
   }
-  function openFeed(){
+  function openFeed() {
     if (follows.has(patp)) navigate(`./${patp}`);
+  }
+  function showListInterface() {
+    navigate(`/lists/${patp}`)
   }
   return (
     <div className="user-preview">
       <div className="metadata">
         <Sigil patp={patp} size={30} />
         <div className="patp">
-          <p onClick={openFeed} className="clickable patp-string">{patp}</p>
+          <p onClick={openFeed} className="clickable patp-string">
+            {patp}
+          </p>
           <p className="follows-you">
             {fans.has(patp) ? "Follows you" : "Doesn't follow you"}
           </p>
@@ -122,18 +124,17 @@ export default function ({ patp }: UserPreviewProps) {
           </button>
         </div>
       )}
-      {/* TODO with content distribution
       <div className="user-data">
-        <div className="lists clickable">
+        <div onClick={showListInterface} className="lists clickable">
           <p>Lists</p>
         </div>
-        <div className="followers clickable">
+        {/* <div className="followers clickable">
           <p>Followers</p>
         </div>
         <div className="following clickable">
           <p>Following</p>
-        </div>
-      </div> */}
+        </div> */}
+      </div>
     </div>
   );
 }

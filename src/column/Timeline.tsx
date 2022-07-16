@@ -4,15 +4,15 @@ import useLocalState from "../logic/state";
 import Post from "./post/Post";
 
 function Home(){
-  const {our, scryTimeline, activeGraph} = useLocalState();
+  const {our, scryTimeline, activeFeed, activeGraph} = useLocalState();
   useEffect(()=> {
     scryTimeline()
   }, [])
-  console.log(activeGraph, "ag")
+  console.log(activeFeed, "af")
   return(
     <div id="main-column">
       <header>
-        <h4 id="column-title">Home</h4>
+        <h4 id="column-title">Timeline</h4>
       </header>
       <div id="feed">
         {Object.keys(activeGraph)

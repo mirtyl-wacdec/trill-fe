@@ -4,16 +4,21 @@ import reply from "../../icons/reply.svg"
 import quote from "../../icons/quote.svg"
 import repost from "../../icons/repost.svg"
 import { useState } from "react";
+import useLocalState from "../../logic/state";
 interface FooterProps {
   node: Node;
 }
 function Footer({ node }: FooterProps) {
   const [reacts, setReacts] = useState(false);
+  const {setReply, setQuote} = useLocalState();
+  const doReply = () => setReply(node);
+  const doQuote = () => setQuote(node);
+  
 
   // onClick={() => setReacts(!reacts)
   return (
     <footer>
-      <div className="icon">
+      <div onClick={doReply} className="icon">
         <img src={reply} alt="" />
       </div>
       <div className="icon">

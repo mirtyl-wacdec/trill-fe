@@ -1,7 +1,23 @@
-import type {Ship, Content, Node} from "./types";
+import type {Ship, ID, Content, Node, ListEntry} from "./types";
 import useLocalState from "./state";
+import { buildDM } from "./utils";
 
-export async function addPost(contents: Content[], parent: Node | null) {
+// scries
+
+export async function scryNodeFlat(host: Ship, id: ID): Promise<any>{
+  const {airlock, our} = useLocalState.getState()
+  const path = `/node/${host}/${id}`;
+  const res = await airlock.scry({ app: "feed-store", path: path });
+  return res
+}
+export async function scryNodeFull(host: Ship, id: ID): Promise<any>{
+  const {airlock, our} = useLocalState.getState()
+  const path = `/full-node/${host}/${id}`;
+  const res = await airlock.scry({ app: "feed-store", path: path });
+  return res
+}
+
+export async function addPost(contents: Content[], parent: Node | undefined) {
   const {airlock, our} = useLocalState.getState()
   const json = {
     "add-post": {
@@ -47,9 +63,10 @@ export async function fetchContact(patp: string){
 }
 export async function follow(ship: Ship, fn: Function) {
   const {airlock, our} = useLocalState.getState()
-  console.log(airlock, "airlock")
+  console.log(airlock, "airlock of follow")
   let sub: number;
   const handleData = (data: any) => {
+    console.log(data, "data handled by /join subscription")
     fn(data)
   };
   const res = await airlock.subscribe({
@@ -74,11 +91,27 @@ export async function unfollow(ship: Ship) {
 
 export async function sendDM(ship: Ship){
   const {airlock, our} = useLocalState.getState()
-  const json = {};
-  const res = await airlock.poke({
-    app: "dm-hook",
-    mark: "graph-update-3",
-    json: json,
-  });
+  const text = "Hi! I've been trying to follow you on Trill, the Urbit microblogging app. Do you have it? If not, go check it out at https://trill.com.";
+  const pokeObj = buildDM(our, ship, text);
+  const res = await airlock.poke(pokeObj);
   return res;
+}
+export async function createList(name: string, symbol: string, desc: string, image: string){
+  const {airlock} = useLocalState.getState()
+  const json = {create: {name: name, symbol: symbol, desc: desc, image: image}}
+  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+  return await airlock.poke(pokeObj);
+}
+
+export async function addToList(listName: string, entry: ListEntry){
+  const {airlock} = useLocalState.getState()
+  const json = {add: {symbol: listName, entry: entry}}
+  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+  return await airlock.poke(pokeObj);
+}
+export async function removeFromList(listName: string, entry: ListEntry){
+  const {airlock} = useLocalState.getState()
+  const json = {remove: {symbol: listName, entry: entry}}
+  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+  return await airlock.poke(pokeObj);
 }

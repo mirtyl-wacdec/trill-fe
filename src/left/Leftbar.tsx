@@ -17,13 +17,13 @@ function Leftbar() {
         <Link className="link" to="/timeline">
           <div className="left-menu-item">
             <img className="left-menu-icon" src={home} alt="" />
-            <p>Home</p>
+            <p>Timeline</p>
           </div>
         </Link>
         <Link className="link" to="/home">
           <div className="left-menu-item">
             <img className="left-menu-icon" src={head} alt="" />
-            <p>Your Feed</p>
+            <p>Home</p>
           </div>
         </Link>
         <Link className="link" to="/lists">

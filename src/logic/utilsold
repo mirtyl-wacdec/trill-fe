@@ -1,0 +1,564 @@
+import type { Ship, GSResource, AssociationGraph, Association, Node, ReferenceContent, ExternalContent, Content } from "@/types";
+import type { Tweet } from "@/utils/twatter";
+import anyAscii from 'any-ascii';
+import { patp2dec, isValidPatp } from "urbit-ob";
+
+
+const URL_REGEX = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,10}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
+
+export function cleanMetadata(metadata: AssociationGraph): Association[]{
+  console.log(metadata, "map")
+  const all: Association[] = Object.values(metadata);
+  const graphs = all.filter(a => a["app-name"] === "graph");
+  return graphs.map(g => {
+    const gn = `${g.group}/groups${g.group}`
+    const gn2 = `${g.group}/graph${g.group}`
+    const group = metadata[gn] || metadata[gn2];
+    if (!group) console.log(g, "you lack metadata for this graph")
+    const title = group ? group.metadata.title : "error"
+    return {...g, ...{groupName: title}}
+  })
+}
+
+export function stringToSymbol(str: string) {
+  const ascii = anyAscii(str);
+  let result = '';
+  for (let i = 0; i < ascii.length; i++) {
+    const n = ascii.charCodeAt(i);
+    if ((n >= 97 && n <= 122) || (n >= 48 && n <= 57)) {
+      result += ascii[i];
+    } else if (n >= 65 && n <= 90) {
+      result += String.fromCharCode(n + 32);
+    } else {
+      result += '-';
+    }
+  }
+  result = result.replace(/^[\-\d]+|\-+/g, '-');
+  result = result.replace(/^\-+|\-+$/g, '');
+  return result;
+}
+
+export function createReference(node: Node): ReferenceContent {
+  return {
+    reference: {
+      feed: {
+        id: node.id,
+        host: node.post.host,
+      },
+    },
+  };
+}
+export function createTwReference(tweet: Tweet): ExternalContent {
+  return {
+    json: {
+      origin: "twatter",
+      content: JSON.stringify(tweet),
+    },
+  };
+}
+// this returns the ship name and the post uid (@da)
+const DA_REGEX = /(~\d{4}\.\d{2}\.\d{2}\.\.\d{2}\.\d{2}\.\d{2}\.\.[a-f0-9]{4})/;
+
+export function detokenize(contents: Content[]): string {
+  return contents.reduce((acc: string, con: Content) => {
+    if ("text" in con) return acc + con.text;
+    else if ("url" in con) return acc + con.url;
+    else if ("mention" in con) return acc + con.mention;
+    else return acc;
+  }, "");
+}
+
+type tokenizerData = [string, taggedContent[]];
+type taggedContent = [string, Content];
+type taggedRegex = [string, RegExp];
+// TODO URLS are weird, http protocol not detected
+export function tokenize(input: string): Content[] {
+  let data: tokenizerData = [input, []];
+  // data = extract_token(data, ["code", /```.+```/gs]); // codeblocks
+  // data = extract_token(data, ["code", /`.+`/g]); // codelines
+  // console.log(data, "extracted code")
+  // data = extract_reference(data)        // references
+  data = extract_mention(data); // mentions
+  data = extract_token(data, [
+    "url", 
+    URL_REGEX
+    // /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi,
+  ]); // urls
+  return extract_text(data);
+}
+function extract_text(data: tokenizerData): Content[] {
+  const uids = data[1].map((tuple) => tuple[0].replace(/;/g, ""));
+  console.log(uids);
+  const ret = data[0].split(";;").map((section) => {
+    console.log(section);
+    if (uids.includes(section))
+      return data[1].find((tagged) => tagged[0] === `;;${section};;`)[1];
+    else return { text: section };
+  });
+  return ret;
+}
+
+function extract_token(data: tokenizerData, r: taggedRegex): tokenizerData {
+  const matches = data[0].match(r[1]);
+  if (!matches) return data;
+  else
+    return matches.reduce((acc, item) => {
+      const uid = `;;${Math.random().toString(36).substring(8)};;`;
+      let obj: any = {};
+      obj[r[0]] = item;
+      return [acc[0].replace(item, uid), [...acc[1], [uid, obj]]];
+    }, data);
+}
+
+function extract_mention(data: tokenizerData): tokenizerData {
+  const matches = data[0].match(/~[a-z_-]+/g);
+  if (!matches) return data;
+  else
+    return matches.reduce((acc, item) => {
+      const uid = `;;${Math.random().toString(36).substring(8)};;`;
+      if (isValidPatp(item))
+        return [
+          acc[0].replace(item, uid),
+          [...acc[1], [uid, { mention: item }]],
+        ];
+      else return acc;
+    }, data);
+}
+
+const pre = `
+dozmarbinwansamlitsighidfidlissogdirwacsabwissib\
+rigsoldopmodfoglidhopdardorlorhodfolrintogsilmir\
+holpaslacrovlivdalsatlibtabhanticpidtorbolfosdot\
+losdilforpilramtirwintadbicdifrocwidbisdasmidlop\
+rilnardapmolsanlocnovsitnidtipsicropwitnatpanmin\
+ritpodmottamtolsavposnapnopsomfinfonbanmorworsip\
+ronnorbotwicsocwatdolmagpicdavbidbaltimtasmallig\
+sivtagpadsaldivdactansidfabtarmonranniswolmispal\
+lasdismaprabtobrollatlonnodnavfignomnibpagsopral\
+bilhaddocridmocpacravripfaltodtiltinhapmicfanpat\
+taclabmogsimsonpinlomrictapfirhasbosbatpochactid\
+havsaplindibhosdabbitbarracparloddosbortochilmac\
+tomdigfilfasmithobharmighinradmashalraglagfadtop\
+mophabnilnosmilfopfamdatnoldinhatnacrisfotribhoc\
+nimlarfitwalrapsarnalmoslandondanladdovrivbacpol\
+laptalpitnambonrostonfodponsovnocsorlavmatmipfip\
+`;
+
+const suf = `
+zodnecbudwessevpersutletfulpensytdurwepserwylsun\
+rypsyxdyrnuphebpeglupdepdysputlughecryttyvsydnex\
+lunmeplutseppesdelsulpedtemledtulmetwenbynhexfeb\
+pyldulhetmevruttylwydtepbesdexsefwycburderneppur\
+rysrebdennutsubpetrulsynregtydsupsemwynrecmegnet\
+secmulnymtevwebsummutnyxrextebfushepbenmuswyxsym\
+selrucdecwexsyrwetdylmynmesdetbetbeltuxtugmyrpel\
+syptermebsetdutdegtexsurfeltudnuxruxrenwytnubmed\
+lytdusnebrumtynseglyxpunresredfunrevrefmectedrus\
+bexlebduxrynnumpyxrygryxfeptyrtustyclegnemfermer\
+tenlusnussyltecmexpubrymtucfyllepdebbermughuttun\
+bylsudpemdevlurdefbusbeprunmelpexdytbyttyplevmyl\
+wedducfurfexnulluclennerlexrupnedlecrydlydfenwel\
+nydhusrelrudneshesfetdesretdunlernyrsebhulryllud\
+remlysfynwerrycsugnysnyllyndyndemluxfedsedbecmun\
+lyrtesmudnytbyrsenwegfyrmurtelreptegpecnelnevfes\
+`;
+const prefixes = pre.match(/.{1,3}/g);
+const suffixes = suf.match(/.{1,3}/g);
+
+const patp2syls = (name) => name.replace(/[\^~-]/g, "").match(/.{1,3}/g) || [];
+
+export const isValidPat = (name: string): boolean => {
+  const leadingTilde = name.slice(0, 1) === "~";
+
+  if (leadingTilde === false || name.length < 4) {
+    return false;
+  } else {
+    const syls = patp2syls(name);
+    const wrongLength = syls.length % 2 !== 0 && syls.length !== 1;
+    const sylsExist = syls.reduce(
+      (acc: boolean, syl: string, index: number) =>
+        acc &&
+        (index % 2 !== 0 || syls.length === 1
+          ? suffixes.includes(syl)
+          : prefixes.includes(syl)),
+      true
+    );
+
+    return !wrongLength && sylsExist;
+  }
+};
+
+export function buildChatPost(author: Ship, resource: GSResource, text: string) {
+  // const contents = tokenizeString(text);
+  // console.log(contents, "tokenized string")
+  return {
+      app: "graph-push-hook", mark: "graph-update-3", json: {
+          "add-nodes": {
+              resource: { name: resource.name, ship: resource.entity },
+              nodes: {
+                  "/9": {
+                      children: null,
+                      post: {
+                          author: author,
+                          contents: [{text: text}],
+                          hash: null,
+                          index: "/9",
+                          signatures: [],
+                          "time-sent": Date.now()
+                      }
+                  }
+              }
+
+          }
+      }
+  };
+}
+export function buildNotebookPost(author: Ship, resource: GSResource, title: string, text: string) {
+  const node = {};
+  const index = `/${makeIndex()}`;
+  node[index] =  {
+          children: {
+            "1":{
+              post: {
+                  author: author,
+                  contents: [],
+                  hash: null,
+                  index: index + "/1",
+                  signatures: [],
+                  "time-sent": Date.now()
+              },
+              children:{
+                  "1":{
+                      children: null,
+                      post: {
+                          author: author,
+                          contents: [{text: title}, {text: text}],
+                          hash: null,
+                          index: index + "/1/1",
+                          signatures: [],
+                          "time-sent": Date.now()
+                      }
+
+                  }
+              }
+            },
+            "2":{
+                children: null,
+                post: {
+                  author: author,
+                  contents: [],
+                  hash: null,
+                  index: index + "/2",
+                  signatures: [],
+                  "time-sent": Date.now()
+              }
+            }
+          },
+          post: {
+              author: author,
+              contents: [],
+              hash: null,
+              index: index,
+              signatures: [],
+              "time-sent": Date.now()
+          }
+      }
+  return {
+      app: "graph-push-hook", mark: "graph-update-3", json: {
+          "add-nodes": {
+              resource: { name: resource.name, ship: resource.entity },
+              nodes: node
+          }
+      }
+  };
+}
+export function buildCollectionPost(author: Ship, resource: GSResource, title: string, url: string) {
+  const node = {};
+  const index = `/${makeIndex()}`;
+  node[index] =  {
+          children: null,
+          post: {
+              author: author,
+              contents: [{text: title}, {url: url}],
+              hash: null,
+              index: index,
+              signatures: [],
+              "time-sent": Date.now()
+          }
+      }
+  return {
+      app: "graph-push-hook", mark: "graph-update-3", json: {
+          "add-nodes": {
+              resource: { name: resource.name, ship: resource.entity },
+              nodes: node
+          }
+      }
+  };
+}
+export function buildDM(author: Ship, recipient: Ship, text: string) {
+  const node = {};
+  const point = patp2dec(recipient);
+  console.log(point, "point")
+  const index = `/${point}/${makeIndex()}`;
+  node[index] =  {
+          children: null,
+          post: {
+              author: author,
+              contents: [{text: text}],
+              hash: null,
+              index: index,
+              signatures: [],
+              "time-sent": Date.now()
+          }
+      }
+  return {
+      app: "dm-hook", mark: "graph-update-3", json: {
+          "add-nodes": {
+              resource: { name: "dm-inbox", ship: author },
+              nodes: node
+          }
+      }
+  };
+}
+function makeIndex(){
+const DA_UNIX_EPOCH = BigInt('170141184475152167957503069145530368000');
+const DA_SECOND = BigInt('18446744073709551616');
+const timeSinceEpoch = (BigInt(Date.now()) * DA_SECOND) / BigInt(1000);
+return (DA_UNIX_EPOCH + timeSinceEpoch).toString()
+}
+
+
+// function extract_reference(data: tokenizerData): tokenizerData{
+//     // TODO
+//     return data
+// }
+
+// const convertToGroupRef = group => `web+urbitgraph://group/${group}`;
+
+// export const isUrl = (str) => {
+//   try {
+//     return URL_REGEX.test(str);
+//   } catch (e) {
+//     return false;
+//   }
+// };
+
+// const raceRegexes = (str) => {
+//   let link = str.match(URL_REGEX);
+//   while(link?.[1]?.endsWith('(')) {
+//     const resumePos = link[1].length + link[2].length;
+//     const resume = str.slice(resumePos);
+//     link = resume.match(URL_REGEX);
+//     if(link) {
+//       link[1] = str.slice(0, resumePos) + link[1];
+//     }
+//   }
+//   const groupRef = str.match(GROUP_REGEX);
+//   const mention = str.match(PATP_REGEX);
+//   let pfix = str;
+//   let content, sfix;
+//   if(link) {
+//     pfix = link[1];
+//     sfix = link[4];
+//     const perma = parsePermalink(link[2]);
+//     if(perma) {
+//       content = permalinkToReference(perma);
+//     } else {
+//       content = { url: link[2] };
+//     }
+//   }
+//   const perma = parsePermalink(convertToGroupRef(groupRef?.[2]));
+//   const [,,host] = perma?.group.split('/') ?? [];
+//   if(groupRef && groupRef[1].length < pfix?.length && Boolean(perma) && urbitOb.isValidPatp(host)) {
+//     pfix = groupRef[1];
+//     content = permalinkToReference(perma);
+//     sfix = groupRef[3];
+//   }
+//   if(mention && urbitOb.isValidPatp(mention[2]) && mention[1].length < pfix?.length) {
+//     pfix = mention[1];
+//     content = { mention: mention[2] };
+//     sfix = mention[3];
+//   }
+//   return [pfix, content, sfix];
+// };
+
+// const tokenizeMessage = (text) => {
+//   const messages = [];
+//   // by line
+//   let blocks = [];
+//   let currBlock = [];
+//   const foo = text.split('`');
+//   foo.forEach((str, index) => {
+//     const isCode = index % 2 === 1;
+//     if(isCode) {
+//       blocks.push(str);
+//       return;
+//     }
+//     if(str.length === 0) {
+//       blocks.push('');
+//       return;
+//     }
+//     while(str.length > 0) {
+//       const resetAndPush = (content) => {
+//         if(currBlock.length > 0) {
+//           blocks.push(currBlock.join(''));
+//         }
+//         if(blocks.length > 0) {
+//           //  ended on a `
+//           if(blocks.length % 2 === 0) {
+//             blocks.push('');
+//           }
+//           messages.push({ text: blocks.join('`') });
+//         }
+//         currBlock = [];
+//         blocks = [];
+//         messages.push(content);
+//       };
+//       const [pfix, content, sfix] = raceRegexes(str);
+//       if(content) {
+//         pfix?.length > 0 && currBlock.push(pfix);
+//         resetAndPush(content);
+//         str = sfix;
+//       } else {
+//         currBlock.push(str);
+//         str = '';
+//       }
+//     }
+//     blocks.push(currBlock.join(''));
+//     currBlock = [];
+//   });
+//   // ended on a `
+//   if(blocks.length % 2 === 0) {
+//     blocks.push('');
+//   }
+//   messages.push({ text: blocks.join('`') });
+//   return messages;
+// };
+
+//   export function getPermalinkForGraph(
+//     group: string,
+//     graph: string,
+//     index = ''
+//   ) {
+//     const groupLink = getPermalinkForAssociatedGroup(group);
+//     const { ship, name } = resourceFromPath(graph);
+//     return `${groupLink}/graph/${ship}/${name}${index}`;
+//   }
+
+//   function getPermalinkForAssociatedGroup(group: string) {
+//     const { ship, name } = resourceFromPath(group);
+//     return `web+urbitgraph://group/${ship}/${name}`;
+//   }
+
+//   type Permalink = AppPermalink | GraphPermalink | GroupPermalink;
+
+//   export interface AppPermalink {
+//     type: 'app';
+//     link: string;
+//     ship: string;
+//     desk: string;
+//     path: string;
+//   }
+
+//   export interface GroupPermalink {
+//     type: 'group';
+//     group: string;
+//     link: string;
+//   }
+
+//   export interface GraphPermalink {
+//     type: 'graph';
+//     link: string;
+//     graph: string;
+//     group: string;
+//     index: string;
+//   }
+
+//   function parseGraphPermalink(
+//     link: string,
+//     group: string,
+//     segments: string[]
+//   ): GraphPermalink | null {
+//     const [kind, ship, name, ...index] = segments;
+//     if (kind !== 'graph') {
+//       return null;
+//     }
+//     const graph = `/ship/${ship}/${name}`;
+//     return {
+//       type: 'graph',
+//       link: link.slice(16),
+//       graph,
+//       group,
+//       index: `/${index.join('/')}`
+//     };
+//   }
+
+//   export function permalinkToReference(link: Permalink): ReferenceContent {
+//     switch (link.type) {
+//       case 'graph':
+//         return { reference: { graph: _.omit(link, ['type', 'link']) } };
+//       case 'group':
+//         return { reference: { group: link.group } };
+//       case 'app':
+//         return { reference: { app: _.omit(link, ['type', 'link']) } };
+//     }
+//   }
+
+//   export function referenceToPermalink({ reference }: ReferenceContent): Permalink {
+//     if('graph' in reference) {
+//       const { graph, group, index } = reference.graph;
+//       const link = `web+urbitgraph://group${group.slice(5)}/graph${graph.slice(5)}${index}`;
+//       return {
+//         type: 'graph',
+//         link,
+//         ...reference.graph
+//       };
+//     } else if ('app' in reference) {
+//       const { ship, desk, path } = reference.app;
+//       return {
+//         type: 'app',
+//         link: `web+urbitgraph://${ship}/${desk}${path}`,
+//         ship,
+//         desk,
+//         path
+//       };
+//     } else {
+//       const link = `web+urbitgraph://group${reference.group.slice(5)}`;
+//       return {
+//         type: 'group',
+//         link,
+//         ...reference
+//       };
+//     }
+//   }
+
+//   export function parsePermalink(url: string): Permalink | null {
+//     const [kind, ...rest] = url.slice(17).split('/');
+
+//     if (kind === 'group') {
+//       const [ship, name, ...graph] = rest;
+//       const group = `/ship/${ship}/${name}`;
+//       if (graph.length > 0) {
+//         return parseGraphPermalink(url, group, graph);
+//       }
+//       return {
+//         type: 'group',
+//         group,
+//         link: url.slice(11)
+//       };
+//     }
+
+//     if (isValidPatp(kind)) {
+//       const [desk, ...parts] = rest;
+//       const path = '/' + parts.join('/');
+//       return {
+//         type: 'app',
+//         link: url,
+//         ship: kind,
+//         desk,
+//         path
+//       };
+//     }
+
+//     return null;
+//   }
