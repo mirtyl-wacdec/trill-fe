@@ -23,10 +23,12 @@ function Post({ node, fake, rter, rtat }: PostProps) {
     const rr = repostData(node);
     if (rr) {
       scryNodeFlat(rr.host, rr.id).then((res) => {
-        console.log(res, "res");
-            if (res && "flat-node-scry" in res) setRP(res["flat-node-scry"]);
-            else setRP(null);
+        if (res && "flat-node-scry" in res) setRP(res["flat-node-scry"]);
+        else setRP(null);
       });
+    }  
+    return () => {
+      setRP(null)
     }
   }, [node.id]);
   if (rp) {

@@ -55,7 +55,7 @@ function DMScreen() {
       });
     } else setPatpError(true);
     return () => {
-      unsub(sub).then((res) => console.log(res, "unsubsribed from gs"));
+      unsub(sub).then((res) => console.log(res, "unsubscribed from gs"));
     };
   }, [location.pathname]);
 
@@ -104,6 +104,7 @@ interface DMProps {
 }
 
 function DM({ gsNode }: DMProps) {
+  console.log(gsNode.post["time-sent"], "ts")
   return (
     <div className="dm">
       <div className="metadata">
@@ -119,29 +120,30 @@ function DM({ gsNode }: DMProps) {
       </div>
       <div className="contents">
         {gsNode.post.contents.map((c, i) => {
-          if ("text" in c) return <span key={c.text + i}>{c.text}</span>;
+          if ("text" in c) return <span key={gsNode.id + c.text + i}>{c.text}</span>;
           else if ("mention" in c)
-            return <span key={c.mention + i}>{c.mention}</span>;
+            return <span key={gsNode.id + c.mention + i}>{c.mention}</span>;
           else if ("url" in c)
             return (
-              <a href={c.url} key={c.url + i}>
+              <a href={c.url} key={gsNode.id + c.url + i}>
                 {c.url}
               </a>
             );
           else if ("reference" in c)
             return (
               <Reference
-                key={JSON.stringify(c.reference) + i}
+                key={gsNode.id + JSON.stringify(c.reference) + i}
                 r={c.reference}
               />
             );
           else if ("code" in c)
             return (
-              <div key={JSON.stringify(c.code)} className="codeblock">
+              <div key={gsNode.id + JSON.stringify(c.code)} className="codeblock">
                 <code>{c.code.expression}</code>
                 <code>{">" + c.code.output.join("")}</code>
               </div>
             );
+          else return <div key={gsNode.id + i}></div>;
         })}
       </div>
     </div>
@@ -166,11 +168,10 @@ function Reference({ r }: ReferenceProps) {
   }
   return (
     <div className="reference">
-      {content ? // TODO this only applies to Landscape posts
-      (
+      {content ? ( // TODO this only applies to Landscape posts
         <div className="reference-content">
           <DM gsNode={content} />
-          <button onClick={() => setContent(null)} >Close</button>
+          <button onClick={() => setContent(null)}>Hide</button>
         </div>
       ) : (
         <div className="reference-preview">

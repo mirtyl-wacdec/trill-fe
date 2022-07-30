@@ -278,7 +278,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   playingWith: "",
   resetPlayArea: () => set({ playingWith: "" }),
   notifications: {
-    follows: [], engagement: [], unread: []
+    follows: [], unfollows: [], engagement: [], unread: []
   }
 }));
 

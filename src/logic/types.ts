@@ -153,6 +153,7 @@ interface ReactsDisplay {
 // Notifications
 export interface Notifications {
   follows: FollowNotification[];
+  unfollows: UnfollowNotification[];
   engagement: Notification[];
   unread: PID[]
 }
@@ -164,7 +165,14 @@ export type Notification =
   | MentionNotification
 
 export interface FollowNotification {
-  follow: Ship
+  follow: {
+    ship: Ship, time: number
+  }
+}
+export interface UnfollowNotification {
+  unfollow: {
+    ship: Ship, time: number
+  }
 }
 export interface ReactNotification {
   react: {

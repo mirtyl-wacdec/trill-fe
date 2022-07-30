@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import useLocalState from "../logic/state";
-import { FollowNotification, Notification, PID } from "../logic/types";
+import {
+  FollowNotification,
+  Notification,
+  PID,
+  UnfollowNotification,
+} from "../logic/types";
 import { date_diff } from "../logic/utils";
 import Sigil from "../ui/Sigil";
 
@@ -15,7 +20,11 @@ function Notifications() {
       </header>
       <div id="notifications">
         <div className="news">
-          {[...notifications.engagement, ...notifications.follows].map((n) => (
+          {[
+            ...notifications.engagement,
+            ...notifications.follows,
+            ...notifications.unfollows,
+          ].map((n) => (
             <Note key={JSON.stringify(n)} n={n} />
           ))}
         </div>
@@ -34,10 +43,40 @@ function Notifications() {
 export default Notifications;
 
 interface NoteProps {
-  n: Notification | FollowNotification;
+  n: Notification | FollowNotification | UnfollowNotification;
 }
 function Note({ n }: NoteProps) {
-  if ("mention" in n)
+  if ("follow" in n)
+    return (
+      <div className="note follow-note">
+        <div className="author">
+          <div className="sigil">
+            <Sigil patp={n.follow.ship} size={30} />
+          </div>
+          <p className="patp">{n.follow.ship}</p>
+        </div>
+        <div className="note-content">Followed you</div>
+        <div className="note-time">
+          <p>{date_diff(n.follow.time, "short")}</p>
+        </div>
+      </div>
+    );
+  else if ("unfollow" in n)
+    return (
+      <div className="note unfollow-note">
+        <div className="author">
+          <div className="sigil">
+            <Sigil patp={n.unfollow.ship} size={30} />
+          </div>
+          <p className="patp">{n.unfollow.ship}</p>
+        </div>
+        <div className="note-content">Unfollowed you</div>
+        <div className="note-time">
+          <p>{date_diff(n.unfollow.time, "short")}</p>
+        </div>
+      </div>
+    );
+  else if ("mention" in n)
     return (
       <div className="note react-note">
         <div className="author">
@@ -47,8 +86,10 @@ function Note({ n }: NoteProps) {
           <p className="patp">{n.mention.ship}</p>
         </div>
         <div className="note-content">
-          <p className="note-action">Mentioned you</p> 
-          <a href={`/${n.mention.pid.host}/${n.mention.pid.id}`}>in this post</a>
+          <p className="note-action">Mentioned you</p>
+          <a href={`/${n.mention.pid.host}/${n.mention.pid.id}`}>
+            in this post
+          </a>
         </div>
         <div className="note-time">
           <p>{date_diff(n.mention.time, "short")}</p>
@@ -65,7 +106,7 @@ function Note({ n }: NoteProps) {
           <p className="patp">{n.react.ship}</p>
         </div>
         <div className="note-content">
-          <p className="note-action">Reacted {n.react.react} to{" "}</p> 
+          <p className="note-action">Reacted {n.react.react} to </p>
           <a href={`/${n.react.pid.host}/${n.react.pid.id}`}>your post</a>
         </div>
         <div className="note-time">
@@ -83,7 +124,12 @@ function Note({ n }: NoteProps) {
           <p className="patp">{n.reply.ship}</p>
         </div>
         <div className="note-content">
-          <a  className="note-action" href={`${n.reply.ab.host}/${n.reply.ab.id}`}>replied here</a>
+          <a
+            className="note-action"
+            href={`${n.reply.ab.host}/${n.reply.ab.id}`}
+          >
+            replied here
+          </a>
           <a href={`${n.reply.ad.host}/${n.reply.ad.id}`}>to your post</a>
         </div>
         <div className="note-time">
@@ -98,10 +144,15 @@ function Note({ n }: NoteProps) {
           <div className="sigil">
             <Sigil patp={n.quote.ship} size={30} />
           </div>
-          <p  className="patp">{n.quote.ship}</p>
+          <p className="patp">{n.quote.ship}</p>
         </div>
         <div className="note-content">
-          <a  className="note-action" href={`${n.quote.ab.host}/${n.quote.ab.id}`}>quoted here</a>
+          <a
+            className="note-action"
+            href={`${n.quote.ab.host}/${n.quote.ab.id}`}
+          >
+            quoted here
+          </a>
           <a href={`${n.quote.ad.host}/${n.quote.ad.id}`}>your post</a>
         </div>
         <div className="note-time">
@@ -116,10 +167,12 @@ function Note({ n }: NoteProps) {
           <div className="sigil">
             <Sigil patp={n.rt.ship} size={30} />
           </div>
-          <p  className="patp">{n.rt.ship}</p>
+          <p className="patp">{n.rt.ship}</p>
         </div>
         <div className="note-content">
-          <a  className="note-action" href={`${n.rt.ab.host}/${n.rt.ab.id}`}>reposted here</a>
+          <a className="note-action" href={`${n.rt.ab.host}/${n.rt.ab.id}`}>
+            reposted here
+          </a>
           <a href={`${n.rt.ad.host}/${n.rt.ad.id}`}>your post</a>
         </div>
         <div className="note-time">

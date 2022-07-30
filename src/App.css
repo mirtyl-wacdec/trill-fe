@@ -604,7 +604,6 @@ footer .icon span:hover{
   margin-right: 10rem;
   display: flex;
   flex-direction: column;
-  height: 100vh;
 }
 #play-column > header{
   background-color: var(--grey-background);
