@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import {Svg, Search} from "../ui/Icons"
 import useLocalState from "../logic/state";
 import Post from "./post/Post";
+import { rebuildTimeline } from "../logic/actions";
 
 function Home(){
   const {our, scryTimeline, activeFeed, activeGraph} = useLocalState();
@@ -9,10 +10,15 @@ function Home(){
     scryTimeline()
   }, [])
   console.log(activeFeed, "af")
+  async function rebuild(){
+    const r = await rebuildTimeline();
+    if (r) scryTimeline()
+  }
   return(
-    <div id="main-column">
+    <div id="main-column" className="timeline-column">
       <header>
         <h4 id="column-title">Timeline</h4>
+        <button onClick={rebuild}>Rebuild</button>
       </header>
       <div id="feed">
         {Object.keys(activeGraph)

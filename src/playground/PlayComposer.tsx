@@ -19,7 +19,7 @@ interface ComposerProps {
 }
 
 export default function (pr: ComposerProps) {
-  const { our, setReply, setQuote } = useLocalState();
+  const { our, setReply, setQuote, resetPlayArea} = useLocalState();
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -77,7 +77,7 @@ export default function (pr: ComposerProps) {
         },
       },
     };
-    const contents = [ref, ...c];
+    const contents = [...c, ref];
     const r = await addPost(contents, undefined);
     console.log(r, "r");
     if (r) reset();
@@ -101,10 +101,10 @@ export default function (pr: ComposerProps) {
 
   return (
     <div className="composer">
-      <div className="composer-title">
+      <div className="composer-title playmenu-title">
       <p
         onClick={() => {
-          setReply(null), setQuote(null);
+          resetPlayArea()
         }}
       >
         (x)

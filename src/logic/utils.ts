@@ -171,7 +171,7 @@ export function stringToSymbol(str: string) {
   result = result.replace(/^\-+|\-+$/g, '');
   return result;
 }
-export function buildDM(author: Ship, recipient: Ship, text: string) {
+export function buildDM(author: Ship, recipient: Ship, contents: Content[]) {
   const node: any = {};
   const point = patp2dec(recipient);
   console.log(point, "point")
@@ -180,7 +180,7 @@ export function buildDM(author: Ship, recipient: Ship, text: string) {
     children: null,
     post: {
       author: author,
-      contents: [{ text: text }],
+      contents: contents,
       hash: null,
       index: index,
       signatures: [],

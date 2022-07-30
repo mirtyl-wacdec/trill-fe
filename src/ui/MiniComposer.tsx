@@ -60,8 +60,12 @@ export default function (pr: ComposerProps) {
     const withMedia = [...contents, ...imgs];
     if (pr.replyTo) poastReply(withMedia)
     else if (pr.quote) poastQuote(withMedia)
-    else addPost(withMedia, undefined)
+    else poastIt(contents)
     //    quit();
+  }
+  async function poastIt(c: Content[]){
+    const r = await addPost(c, undefined);
+    if (r) reset();
   }
   async function poastReply(c: Content[]){
     const r = await addPost(c, pr.replyTo);

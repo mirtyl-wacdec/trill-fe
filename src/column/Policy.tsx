@@ -1,65 +1,147 @@
-import {useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import useLocalState from "../logic/state";
-import {setPolicy, setPolicyList} from "../logic/actions";
+import { setPolicy, setPolicyList } from "../logic/actions";
+import { isValidPatp } from "../logic/ob3/co";
+type listType = "blacklist" | "whitelist"
 function Policy() {
-  const {policy} = useLocalState();
-  const [tab, setTab] = useState<"read" | "write">("read")
-  const [checked, setChecked] = useState(false);
-  const [plist, setPlist] = useState<string[]>([])
-  useEffect(()=> {
-    if (tab == "read") {
-      setChecked("allow" in policy.read);
-      const content = ("not-allow" in policy.read) ? policy.read["not-allow"] : policy.read["allow"]
-      setPlist(content)
-    }
-    else{
-      setChecked("allow" in policy.write);
-      const content = ("not-allow" in policy.write) ? policy.write["not-allow"] : policy.write["allow"]
-      setPlist(content)
-    }
 
-  },[tab])
-  async function savePolicy(){
-    console.log(tab)
-    console.log(checked)
-    console.log(plist)
-    const sp = await setPolicy(tab, checked);
+  const { policy } = useLocalState();
+  const [checked, setChecked] = useState(false);
+  const [readValue, setReadValue] = useState("");
+  const [readError, setReadError] = useState(false);
+  const [readLocked, setReadLocked] = useState(false);
+  const [writeLocked, setWriteLocked] = useState(false);
+  const [writeValue, setWriteValue] = useState("");
+  const [writeError, setWriteError] = useState(false);
+  const [readList, setReadList] = useState<string[]>([]);
+  const [writeList, setWriteList] = useState<string[]>([]);
+  console.log(policy, "poli");
+  console.log(readList, "rl")
+  console.log((policy.read as any).blacklist || (policy.read as any).whitelist, "mmm")
+  useEffect(()=> {
+    setReadList((policy.read as any).blacklist || (policy.read as any).whitelist);
+    setWriteList((policy.write as any).blacklist || (policy.write as any).whitelist)
+    setReadLocked("whitelist" in policy.read)
+    setWriteLocked("whitelist" in policy.write)
+  }, [policy])
+  useEffect(() => {
+    if (readLocked) setReadList((policy.read as any).whitelist || []);
+    else setReadList((policy.read as any).blacklist || [])
+  }, [readLocked])
+  useEffect(() => {
+    if (writeLocked) setReadList((policy.write as any).whitelist || []);
+    else setReadList((policy.write as any).blacklist || [])
+  }, [writeLocked])
+
+  async function savePolicy() {
+    const newRead = readLocked ?  {whitelist: readList} :  {blacklist:readList}
+    const newWrite = writeLocked ? {whitelist: writeList} : {blacklist:writeList}
+    const newPolicy = {
+      read: newRead,
+      write: newWrite
+    }
+    console.log(newPolicy, "np")
+    const sp = await setPolicy(newPolicy);
     console.log(sp, "sp")
-    const list = await setPolicyList(tab, plist)
-    console.log(list, "list")
+    // const list = await setPolicyList("a", tab, plist)
+    // console.log(list, "list")
+  }
+
+
+  function addToRead() {
+    if (isValidPatp(readValue))
+      setReadList((e) => [...e, readValue]), setReadValue("");
+    else setReadError(true);
+  }
+  function addToWrite() {
+    if (isValidPatp(readValue))
+      setReadList((e) => [...e, readValue]), setReadValue("");
+    else setWriteError(true);
   }
 
   return (
     <div id="main-column">
-    <header>
+      <header>
         <h4 id="column-title">Settings</h4>
       </header>
       <div id="policy">
-        <div className="tab-selector">
-          <p className={tab == "read" ? "active" : ""} onClick={()=> setTab("read")}>Read</p>
-          <p className={tab == "read" ? "" : "active"} onClick={()=> setTab("write")}>Write</p>
-          </div>
-        <div id="tab">
-          <h3>{tab == "read" ? "Read" : "Write"} Permissions</h3>
-          <div className="input">
-          <p>Limit people who can  
-            {tab == "read" ? " read " : " write to "}
-            your feed?</p>
-          <input type="checkbox" 
-          checked={checked}
-          onChange={()=> setChecked(!checked)}
+        <h3>Permissions</h3>
+        <button onClick={savePolicy}>Save</button>
+        <div className="read-settings">
+          <div className="settings-title">
+          <h4>Read</h4>
+          <p>
+            {readLocked ? "locked" : "unlocked"}
+            </p>
+          <input
+            type="checkbox"
+            checked={readLocked}
+            onChange={() => setReadLocked(!readLocked)}
           />
           </div>
-          <div className="input">
-          <p>Set a {checked ? "black" : "white"}list</p>
-          <textarea name="" id=""
-          value={plist.join("\n")}
-          onChange={e => setPlist(e.target.value.split("\n"))}
-          ></textarea>
+          <p>{readLocked ? "Whitelist" : "Blacklist" }</p>
+          <div className="ship-list">
+            {readList.map((entry, i) => (
+              <div
+                onClick={() => setReadList(readList.filter((r) => r != entry))}
+                className={`blacklist-entry`}
+                key={entry + `${i}`}
+              >
+                {entry}
+              </div>
+            ))}
           </div>
+          <div className="read-input">
+            <input
+              type="text"
+              value={readValue}
+              onChange={(e) => {
+                setReadError(false)
+                setReadValue(e.currentTarget.value)
+              }}
+            />
+            <button onClick={addToRead}>Add</button>
+            <span className="error">{readError ? "Not a valid @p" : ""}</span>
           </div>
-        <button onClick={savePolicy}>Save</button>
         </div>
+        <div className="write-settings">
+        <div className="settings-title">
+          <h4>Write</h4>
+          <p>
+            {writeLocked ? "locked" : "unlocked"}
+            </p>
+          <input
+            type="checkbox"
+            checked={writeLocked}
+            onChange={() => setWriteLocked(!writeLocked)}
+          />
+          </div>
+          <p>{writeLocked ? "Whitelist" : "Blacklist" }</p>
+          <div className="ship-list">
+            {writeList.map((entry, i) => (
+              <div
+                onClick={() => setWriteList(writeList.filter((r) => r != entry))}
+                className={`blacklist-entry`}
+                key={entry + `${i}`}
+              >
+                {entry}
+              </div>
+            ))}
+          </div>
+          <div className="write-input">
+            <input
+              type="text"
+              value={writeValue}
+              onChange={(e) => {
+                setWriteError(false)
+                setWriteValue(e.currentTarget.value)
+              }}
+            />
+            <button onClick={addToWrite}>Add</button>
+            <span className="error">{writeError ? "Not a valid @p" : ""}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

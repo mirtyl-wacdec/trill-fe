@@ -15,7 +15,7 @@ interface PostProps {
   rtat?: number;
 }
 function Post({ node, fake, rter, rtat }: PostProps) {
-  const { highlighted } = useLocalState();
+  const { highlighted, setPreview } = useLocalState();
   const cssClass =
     highlighted?.id === node.id ? "post highlighted-post" : "post";
   const [rp, setRP] = useState<Node | null>(null);
@@ -42,7 +42,7 @@ function Post({ node, fake, rter, rtat }: PostProps) {
     return (
       <div className={cssClass}>
         <div className="left">
-          <div className="sigil">
+          <div onClick={()=> setPreview(node.post.author)} className="sigil">
             <Sigil patp={node.post.author} size={50} />
           </div>
         </div>

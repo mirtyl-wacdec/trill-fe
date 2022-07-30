@@ -1,19 +1,23 @@
+import { Link } from "react-router-dom";
+import type { ListType } from "../../logic/types";
 interface ListProps {
-  list: {
-    description: string;
-    members: string[];
-    name: string;
-    symbol: string;
-    public: boolean;
-  };
+  list: ListType;
 }
 
 function List({ list }: ListProps) {
   return (
-    <div className="list">
-      <h4>{list.name}</h4>
-      <p>{list.description}</p>
-      <p>{list.members.length} members</p>
+    <div className={`list`}>
+      <Link className="list-link title" to={`/lists/${list.name}`}>
+        <div className="title">
+          <h4>{list.name}</h4>
+          <p>{list.description}</p>
+        </div>
+      </Link>
+      <Link className="list-link" to={`/lists/members/${list.name}`}>
+        <div className="members">
+          <p>See {list.members.length} members</p>
+        </div>
+      </Link>
     </div>
   );
 }

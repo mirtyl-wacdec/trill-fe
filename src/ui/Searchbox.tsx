@@ -50,12 +50,14 @@ interface Candidateprops{
 }
 function Candidate({patp, select}: Candidateprops){
   const sigil = patp.length < 15 
-  ? <Sigil patp={patp} size={30}/>
-  : <Sigil patp={"~zod"} size={30}/>
+  ? <Sigil patp={patp} size={32}/>
+  : <Sigil patp={"~zod"} size={32}/>
 
   return(
     <div onClick={() => select(patp)} className="candidate clickable">
+      <div className="sigil">
       {sigil}
+      </div>
      <p className="candidate-patp">{patp}</p>
     </div>
   )

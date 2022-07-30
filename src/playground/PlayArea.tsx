@@ -10,18 +10,18 @@ import { addReact } from "../logic/actions";
 
 export default function () {
   const location = useLocation();
-  const { preview, replyTo, quoteTo, reactingTo } = useLocalState();
-  console.log(reactingTo, "re");
+  const { playingWith, preview, replyTo, quoteTo, reactingTo, engagement } = useLocalState();
   return (
     <div id="play-column">
       <header>
         <Searchbox />
       </header>
-      {!!preview.length && <UserPreview patp={preview} />}
-      {replyTo && <PlayComposer node={replyTo} interaction="reply" />}
-      {quoteTo && <PlayComposer node={quoteTo} interaction="quote" />}
-      {reactingTo && <ReactionBox node={reactingTo} />}
+      {playingWith === "userPreview" && <UserPreview patp={preview} />}
+      {playingWith === "replyTo" && <PlayComposer node={replyTo} interaction="reply" />}
+      {playingWith === "quoteTo" && <PlayComposer node={quoteTo} interaction="quote" />}
+      {playingWith === "reactingTo" && <ReactionBox node={reactingTo} />}
       {location.pathname.includes("lists") && <ListSubMenu />}
+      {playingWith === "engagement" && <Engagement />}
     </div>
   );
 }
@@ -69,4 +69,54 @@ function ReactionBox({ node }: RBProps) {
       </span>
     </div>
   );
+}
+
+function Engagement(){
+  const { engagement, highlighted } = useLocalState();
+  console.log(engagement, "eng")
+  return (
+    <div className="engagement">
+      {engagement.type === "replies" && 
+      <div className="replies">
+        <p>Replied to by:</p>
+        {engagement.ships.map(s => {
+          return(
+            <p key={s}>{s}</p>
+          )
+        })}
+      </div>
+      }
+      {engagement.type === "quotes" && 
+      <div className="quotes">
+        <p>Quoted by:</p>
+        {engagement.ships.map(s => {
+          return(
+            <p key={s}>{s}</p>
+          )
+        })}
+      </div>
+      }
+      {engagement.type === "reposts" && 
+      <div className="reposts">
+        <p>Reposted by:</p>
+        {engagement.ships.map(s => {
+          return(
+            <p key={s}>{s}</p>
+          )
+        })}
+      </div>
+      }
+      {engagement.type === "reacts" && 
+      <div className="replies">
+        <p>Reacted to by:</p>
+        {Object.entries(engagement.reacts).map(r => {
+          return(
+            <p key={r[0]}>{r[0]}: {r[1]}</p>
+          )
+        })}
+      </div>
+      }
+    </div>
+  )
+
 }

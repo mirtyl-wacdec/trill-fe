@@ -1,7 +1,13 @@
 import Sigil from "../ui/Sigil";
 import useLocalState from "../logic/state";
 import { useState, useEffect } from "react";
-import { fetchContact, follow, unfollow, sendDM } from "../logic/actions";
+import {
+  fetchContact,
+  follow,
+  unfollow,
+  sendDM,
+  begForInvite,
+} from "../logic/actions";
 import Spinner from "../ui/Spinner";
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +21,7 @@ export default function ({ patp }: UserPreviewProps) {
   const [loading, setLoading] = useState(false);
   const [bio, setBio] = useState("");
   const [error, setError] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [DMSent, setDMSent] = useState(false);
   useEffect(() => {
     setError(false);
@@ -51,24 +58,36 @@ export default function ({ patp }: UserPreviewProps) {
   }
   async function startFollow() {
     setLoading(true);
-    follow(patp, (data: any) => {
-      setTimeout(() => {
-        const followed = follow_attempts.find((fa) => {
-          const elapsed = Date.now() - fa.timestamp;
-          return fa.ship == patp; //&& elapsed < 100000;
-        });
-        console.log(followed, "f");
-        if (followed) {
-          scryFollows();
-          navigate(`./${patp}`);
-        } else setError(true);
+    follow(patp, async (data: any) => {
+      let acked = false;
+      console.log(data, "follow data at userpreview.tsx");
+      if (data) {
+        acked = true;
         setLoading(false);
+        if (data["trill-follow-update"]){
+          if (data["trill-follow-update"]["not-allow"]) setBlocked(true)
+          else if (data["trill-follow-update"]["allow"]) {
+            console.log("allowed!!")
+            await scryFollows();
+            navigate(`./${patp}`);
+          }
+        }
+      }
+      setTimeout(() => {
+        if (!acked) {
+          setError(true);
+          setLoading(false);
+        }
       }, 5000);
     });
   }
 
   async function shill() {
     const res = await sendDM(patp);
+    if (res) setDMSent(true);
+  }
+  async function beg() {
+    const res = await begForInvite(patp);
     if (res) setDMSent(true);
   }
   function promptUnfollow(e: React.MouseEvent<HTMLButtonElement>) {
@@ -81,19 +100,24 @@ export default function ({ patp }: UserPreviewProps) {
     if (follows.has(patp)) navigate(`./${patp}`);
   }
   function showListInterface() {
-    navigate(`/lists/${patp}`)
+    navigate(`/lists/${patp}`);
+  }
+  function goToLists(){
+    navigate(`/lists/add/${patp}`);
   }
   return (
     <div className="user-preview">
       <div className="metadata">
-        <Sigil patp={patp} size={30} />
+        <div className="sigil">
+          <Sigil patp={patp} size={30} />
+        </div>
         <div className="patp">
           <p onClick={openFeed} className="clickable patp-string">
             {patp}
           </p>
-          <p className="follows-you">
+          {/* <p className="follows-you">
             {fans.has(patp) ? "Follows you" : "Doesn't follow you"}
-          </p>
+          </p> */}
         </div>
         {loading && (
           <div className="spinner">
@@ -124,6 +148,19 @@ export default function ({ patp }: UserPreviewProps) {
           </button>
         </div>
       )}
+      {blocked && (
+        <div className="follow-error">
+          <p>{patp}'s' feed is locked</p>
+          <p>You can request an invite by DM</p>
+          <button disabled={DMSent} onClick={beg}>
+            {DMSent ? "DM Sent" : "Send DM"}
+          </button>
+        </div>
+      )}
+      <div className="lists">
+        <button onClick={goToLists}>Add to a list</button>
+      </div>
+
       {/* <div className="user-data">
         <div onClick={showListInterface} className="lists clickable">
           <p>Lists</p>

@@ -4,6 +4,7 @@ import head from "../icons/head.svg";
 import lists from "../icons/lists.svg";
 import dms from "../icons/dms.svg";
 import notes from "../icons/notes.svg";
+import settings from "../icons/settings.svg";
 import pals from "../icons/pals.svg";
 import twatter from "../icons/twatter.svg"
 import { useState } from "react";
@@ -35,7 +36,7 @@ function Leftbar() {
         </Link>
         <Link className="link" to="/policy">
           <div className="left-menu-item">
-            <img className="left-menu-icon" src={dms} alt="" />
+            <img className="left-menu-icon" src={settings} alt="" />
             <p>Settings</p>
           </div>
         </Link>
@@ -65,12 +66,6 @@ function Leftbar() {
           <p>Apps</p>
           <p className="bar"></p>
         </div>
-        <Link className="link" to="/apps/twitter">
-        <div className="app">
-          <img className="app-icon" src={twatter} alt="" />
-          <p>Twitter</p>
-        </div>
-        </Link>
       </div>
       <div className="footer">
         <p>Trill</p>

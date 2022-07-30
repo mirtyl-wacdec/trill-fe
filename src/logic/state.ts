@@ -2,15 +2,9 @@ import create, { State } from "zustand";
 import { bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
-import type { Node, FullNode, ID, Ship, Graph } from "./types";
+import type { ListType, Node, FullNode, ID, Ship, Graph, SubscriptionStatus, FollowAttempt, Key, Policy, Whitelist, Blacklist, EngagementDisplay } from "./types";
 import { scryNodeFlat, scryNodeFull } from "./actions";
 import { NullIcon } from "../ui/Icons";
-interface FollowAttempt {
-  ship: Ship;
-  timestamp: number;
-}
-
-export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
 
 export interface LocalState {
   our: Ship;
@@ -34,11 +28,12 @@ export interface LocalState {
   activeFeed: "timeline" | "notifications" | "not-follow" | "not-found" | Ship;
   activeGraph: Graph;
   activeThread: FullNode | null;
-  lists: any[],
+  lists: ListType[],
   scryFeed: (feed: string) => Promise<void>;
   scryThread: (host: Ship, id: ID) => Promise<void>;
   scryFollows: () => Promise<void>;
   scryLists: () => Promise<void>;
+  scryList: (symbol: string) => Promise<void>;
   subscribeFeed: () => Promise<void>;
   subscribeHark: () => Promise<void>;
   subscribeJoins: () => Promise<void>;
@@ -56,21 +51,13 @@ export interface LocalState {
   resetHighlighted: () => void;
   reactingTo: Node | null;
   setReacting: (n: Node | null) => void;
-}
-interface Key {
-  ship: Ship;
-  name: string;
-}
-interface Policy {
-  read: Whitelist | Blacklist;
-  write: Whitelist | Blacklist;
-}
-interface Whitelist {
-  allow: Ship[];
-}
-interface Blacklist {
-  "not-allow": Ship[];
-}
+  engagement: EngagementDisplay | null;
+  setEngagement: (e: EngagementDisplay, n: Node) => void;
+  playingWith: PlayAreaOptions;
+  resetPlayArea: () => void;
+};
+type PlayAreaOptions = "replyTo" | "quoteTo" | "reactingTo" | "engagement" | "userPreview" | "lists" | ""
+
 function wait(ms: number) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, ms);
@@ -98,7 +85,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   airlock: new Urbit("http://localhost"),
   init: () => {
     const airlock = bootstrapApi();
-
     set({ airlock: airlock, our: "~" + airlock.ship as string })
   },
   reconnect: async () => {
@@ -188,6 +174,22 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     console.log(res, "scried lists");
     set({ lists: res.lists });
   },
+  scryList: async (s) => {
+    const airlock = get().airlock;
+    try {
+      const res = await airlock.scry({ app: "list-store", path: `/listfeed/${s}` });
+      console.log(res, "scried list");
+      set({
+        activeGraph: res.aggregate.feed,
+        activeFeed: "list",
+      });
+    } catch {
+      set({
+        activeFeed:"wronglist",
+        activeGraph:{}
+      })
+    }
+  },
   subscribeFeed: async () => {
     const airlock = get().airlock;
     const reducer = (data: any) => {
@@ -203,7 +205,10 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
           else if (activeFeed === "thread")
             liveUpdateThread(data, activeThread, set)
         }
-      } else if ("feed-engagement-update" in data){
+        else if ("react-added" in data["feed-post-update"]) {
+
+        }
+      } else if ("feed-engagement-update" in data) {
         console.log(data["feed-engagement-update"])
       }
       // if (activeFeed === data.ship )
@@ -220,8 +225,8 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   subscribeHark: async () => { },
   policy: {
-    read: { allow: [] },
-    write: { allow: [] },
+    read: { whitelist: [] },
+    write: { whitelist: [] },
   },
   subscribeJoins: async () => {
     const airlock = get().airlock;
@@ -231,6 +236,10 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
         const patp = data["trill-follow-update"].followed;
         const fa = { ship: patp, timestamp: Date.now() };
         set((state) => ({ follow_attempts: [...state.follow_attempts, fa] }));
+      }
+      else if ("not-allow" in data["trill-follow-update"]) {
+        // weird
+        console.log()
       }
     };
     const res = await airlock.subscribe({
@@ -253,15 +262,22 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   changePolicy: async () => { },
   preview: "",
-  setPreview: (patp: Ship) => set({ preview: patp }),
+  setPreview: (patp: Ship) => {
+    if (patp === "") set({ preview: patp, playingWith: null })
+    else set({ preview: patp, playingWith: "userPreview" })
+  },
   replyTo: null,
   quoteTo: null,
-  setReply: (node: Node | null) => set({ replyTo: node, quoteTo: null, highlighted: node, reactingTo: null }),
-  setQuote: (node: Node | null) => set({ quoteTo: node, replyTo: null, highlighted: node, reactingTo: null  }),
+  setReply: (node: Node | null) => set({ replyTo: node, highlighted: node, playingWith: "replyTo" }),
+  setQuote: (node: Node | null) => set({ quoteTo: node, highlighted: node, playingWith: "quoteTo" }),
   highlighted: null,
   resetHighlighted: () => set({ highlighted: null }),
   reactingTo: null,
-  setReacting: (n) => set({highlighted: n, reactingTo: n, replyTo: null, quoteTo: null})
+  setReacting: (n) => set({ highlighted: n, reactingTo: n, playingWith: "reactingTo" }),
+  engagement: null,
+  setEngagement: (e: EngagementDisplay, n: Node) => set({ engagement: e, highlighted: n, playingWith: "engagement" }),
+  playingWith: "",
+  resetPlayArea: () => set({ playingWith: "" })
 }));
 
 export default useLocalState;
@@ -278,5 +294,5 @@ function liveUpdateThread(data: any, activeThread: any, set: any) {
     set({ activeThread: data["feed-post-update"]["thread-updated"].thread });
 }
 
-// http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json
-// http://localhost:8080/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone/100.json
+// http://localhost/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json
+// http://localhost/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone/100.json

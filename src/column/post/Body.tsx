@@ -1,4 +1,5 @@
 import Markdown from "marked-react";
+import { useNavigate } from "react-router-dom";
 import useLocalState from "../../logic/state";
 import type {
   Node,
@@ -23,7 +24,6 @@ function Body({ contents }: BodyProps) {
   const [quote, setQuote] = useState<Node | null>(null);
   useEffect(() => {
     const ref = contents.find((c) => "reference" in c);
-    console.log(ref, "reference");
     if (ref) {
       const r = ref as ReferenceContent;
       const rr = r.reference as FeedReference;
@@ -65,6 +65,13 @@ function Body({ contents }: BodyProps) {
                 {c.url}
               </a>
             );
+          else if ("json" in c)
+          return (
+            <p key={JSON.stringify(c.json)}
+            className="external-content-warning">External content from "{c.json.origin}", use 
+            <a href="">UFA</a> 
+            to display.</p>
+          )
         })}
       </div>
       <div className="body-media">
@@ -89,6 +96,7 @@ interface QuoteProps {
   q: Node;
 }
 function Quote({ q }: QuoteProps) {
+  let navigate = useNavigate();
   const contents = q.post.contents;
   const { scryFeed } = useLocalState();
   function isMedia(c: Content): c is URLContent {
@@ -98,7 +106,9 @@ function Quote({ q }: QuoteProps) {
   const text = contents.filter((c) => {
     return !("url" in c && c.url.match(IMAGE_REGEX));
   });
-  const gotoQuote = () => {};
+  const gotoQuote = () => {
+    navigate(`/${q.post.host}/${q.id}`)
+  };
   return (
     <div onClick={gotoQuote} className="quote-in-post">
       <header>{q.post.author}</header>

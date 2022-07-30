@@ -1,34 +1,75 @@
-import type {Ship, ID, Content, Node, ListEntry} from "./types";
+import type { LandscapePostReference, Ship, ID, Content, Node, ListEntry, Policy, ListType } from "./types";
 import useLocalState from "./state";
-import { buildDM } from "./utils";
+import { buildDM, tokenize } from "./utils";
+import { patp2dec } from "./ob3/co";
 
 // scries
 
-export async function scryNodeFlat(host: Ship, id: ID): Promise<any>{
-  const {airlock, our} = useLocalState.getState()
+export async function scryNodeFlat(host: Ship, id: ID): Promise<any> {
+  const { airlock, our } = useLocalState.getState()
   const path = `/node/${host}/${id}`;
   const res = await airlock.scry({ app: "feed-store", path: path });
   return res
 }
-export async function scryNodeFull(host: Ship, id: ID): Promise<any>{
-  const {airlock, our} = useLocalState.getState()
+export async function scryNodeFull(host: Ship, id: ID): Promise<any> {
+  const { airlock, our } = useLocalState.getState()
   const path = `/full-node/${host}/${id}`;
   const res = await airlock.scry({ app: "feed-store", path: path });
   return res
 }
 
-export async function scryDMs(){
-  const {airlock, our} = useLocalState.getState()
+export async function scryDMs() {
+  const { airlock, our } = useLocalState.getState()
   const path = `/graph/${our}/dm-inbox/node/children/lone/~/~.json`;
   const res = await airlock.scry({ app: "graph-store", path: path });
   return res
 }
 
+export async function scryDM(patp: Ship) {
+  const { airlock, our } = useLocalState.getState()
+  const dec = patp2dec(patp);
+  const dotted = dec.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const path = `/graph/${our}/dm-inbox/node/siblings/newest/lone/100/${dotted}`;
+  console.log(path, "scry dm path")
+  const res = await airlock.scry({ app: "graph-store", path: path });
+  return res
+}
 
-// /scries
+export async function scryGSNode(reference: LandscapePostReference){
+  const { airlock } = useLocalState.getState()
+  const [_, __, host, name ] = reference.graph.graph.split("/");
+  const index = reference.graph.index.replace("/", "");
+  const dotted = index.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  const path = `/graph/${host}/${name}/node/index/kith/${dotted}`;
+  const res = await airlock.scry({ app: "graph-store", path: path });
+  return res;
+}
+
+// scries>
+
+// <subscriptions
+type Handler = (date: any) => void;
+export async function subscribeGS(handler: Handler) {
+  const { airlock } = useLocalState.getState()
+
+  const res = await airlock.subscribe({
+    app: "graph-store",
+    path: `/updates`,
+    event: handler
+  });
+  return res
+}
+
+export async function unsub(sub: number) {
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.unsubscribe(sub)
+  return res
+}
+
+// subscriptions>
 
 export async function addPost(contents: Content[], parent: Node | undefined) {
-  const {airlock, our} = useLocalState.getState()
+  const { airlock, our } = useLocalState.getState()
   const json = {
     "add-post": {
       host: parent ? parent.post.host : our,
@@ -40,16 +81,17 @@ export async function addPost(contents: Content[], parent: Node | undefined) {
   };
   return airlock.poke({
     app: "feed-push-hook",
-    mark: "ufa-post-action",
+    mark: "trill-post-action",
     json: json,
   });
 }
 
 export async function addReact(ship: Ship, id: ID, reaction: string) {
-  const {airlock, our} = useLocalState.getState()
+  const { airlock, our } = useLocalState.getState()
   const json = {
     "add-react": {
       react: reaction,
+      src: our,
       pid: {
         id: id,
         host: ship,
@@ -59,39 +101,55 @@ export async function addReact(ship: Ship, id: ID, reaction: string) {
   console.log(json, "poke sent");
   return airlock.poke({
     app: "feed-push-hook",
-    mark: "ufa-post-action",
+    mark: "trill-post-action",
+    json: json,
+  });
+}
+export async function delReact(ship: Ship, id: ID) {
+  const { airlock, our } = useLocalState.getState()
+  const json = {
+    "add-react": {
+      src: our,
+      pid: {
+        id: id,
+        host: ship,
+      },
+    },
+  };
+  console.log(json, "poke sent");
+  return airlock.poke({
+    app: "feed-push-hook",
+    mark: "trill-post-action",
     json: json,
   });
 }
 
-export async function setPolicy(sense: "read" | "write", locked: boolean){
-  const {airlock, our} = useLocalState.getState()
-  const obj: any = {};
-  obj[sense] = locked ? "wl" : "bl";
+export async function setPolicy(policy: Policy) {
+  const { airlock, our } = useLocalState.getState()
   const json = {
-    "change-policy": obj
+    "set-policy": policy
   };
   return airlock.poke({
     app: "feed-store",
-    mark: "ufa-feed-action",
+    mark: "trill-feed-action",
     json: json,
   });
 }
-export async function setPolicyList(action: "b" | "ub" | "a" | "ua", sense: "read" | "write", ships: Ship[]){ 
+export async function setPolicyList(action: "b" | "ub" | "a" | "ua", sense: "read" | "write", ships: Ship[]) {
   const obj: any = {};
-   obj[sense] = ships;
-   const b = {block: obj};
-   const ub = {unblock: obj};
-   const a = {allow: obj};
-   const ua = {unallow: obj};
+  obj[sense] = ships;
+  const b = { block: obj };
+  const ub = { unblock: obj };
+  const a = { allow: obj };
+  const ua = { unallow: obj };
 }
 
-export async function fetchContact(patp: string){
-  const {airlock, our} = useLocalState.getState()
-  return airlock.scry({app: "contact-store", path: `/contact/${patp}`})
+export async function fetchContact(patp: string) {
+  const { airlock, our } = useLocalState.getState()
+  return airlock.scry({ app: "contact-store", path: `/contact/${patp}` })
 }
 export async function follow(ship: Ship, fn: Function) {
-  const {airlock, our} = useLocalState.getState()
+  const { airlock, our } = useLocalState.getState()
   console.log(airlock, "airlock of follow")
   let sub: number;
   const handleData = (data: any) => {
@@ -108,39 +166,80 @@ export async function follow(ship: Ship, fn: Function) {
 }
 
 export async function unfollow(ship: Ship) {
-  const {airlock, our} = useLocalState.getState()
+  const { airlock, our } = useLocalState.getState()
   const json = { forget: ship };
   const res = await airlock.poke({
     app: "feed-pull-hook",
-    mark: "ufa-follow-action",
+    mark: "trill-follow-action",
     json: json,
   });
   return res;
 }
 
-export async function sendDM(ship: Ship){
-  const {airlock, our} = useLocalState.getState()
+export async function sendDM(ship: Ship) {
+  const { airlock, our } = useLocalState.getState()
   const text = "Hi! I've been trying to follow you on Trill, the Urbit microblogging app. Do you have it? If not, go check it out at https://trill.com.";
-  const pokeObj = buildDM(our, ship, text);
+  const pokeObj = buildDM(our, ship, [{text}]);
   const res = await airlock.poke(pokeObj);
   return res;
 }
-export async function createList(name: string, symbol: string, desc: string, image: string){
-  const {airlock} = useLocalState.getState()
-  const json = {create: {name: name, symbol: symbol, desc: desc, image: image}}
-  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+export async function begForInvite(ship: Ship) {
+  const { airlock, our } = useLocalState.getState()
+  const text = "Hi! I've been trying to follow you on Trill, but your account is locked. Can you not be a faggot please? Thank you.";
+  const pokeObj = buildDM(our, ship, [{text}]);
+  const res = await airlock.poke(pokeObj);
+  return res;
+}
+export async function createList(name: string, symbol: string, desc: string, image: string) {
+  const { airlock } = useLocalState.getState()
+  const json = { create: { name: name, symbol: symbol, desc: desc, image: image } }
+  const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
   return await airlock.poke(pokeObj);
 }
 
-export async function addToList(listName: string, entry: ListEntry){
-  const {airlock} = useLocalState.getState()
-  const json = {add: {symbol: listName, entry: entry}}
-  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+export async function addToList(listName: string, entry: ListEntry) {
+  const { airlock } = useLocalState.getState()
+  const json = { add: { symbol: listName, entry: entry } }
+  const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
   return await airlock.poke(pokeObj);
 }
-export async function removeFromList(listName: string, entry: ListEntry){
-  const {airlock} = useLocalState.getState()
-  const json = {remove: {symbol: listName, entry: entry}}
-  const pokeObj = {app:"list-store", mark: "ufa-list-action", json: json}
+export async function removeFromList(listName: string, entry: ListEntry) {
+  const { airlock } = useLocalState.getState()
+  const json = { remove: { symbol: listName, entry: entry } }
+  const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
   return await airlock.poke(pokeObj);
+}
+export async function saveToLists(user: string, symbols: string[], lists: ListType[]) {
+  const ress: any[] = []
+  for (let list of lists) {
+    const inList = list.members.map(l => l.username).includes(user);
+    const wantInList = symbols.includes(list.symbol);
+    if (!inList && wantInList) {
+      const r = await addToList(list.symbol, { service: "urbit", username: user })
+      ress.push(r)
+    }
+    else if (inList && !wantInList) {
+      const r = await removeFromList(list.symbol, { service: "urbit", username: user })
+      ress.push(r)
+    }
+  }
+  return ress
+}
+
+// misc
+export async function rebuildTimeline() {
+  const { airlock } = useLocalState.getState()
+  const json = { "rebuild-timeline": null };
+  const pokeObj = { app: "feed-store", mark: "trill-feed-action", json: json }
+  return await airlock.poke(pokeObj);
+}
+
+// dms
+
+export async function postDM(recipient: Ship, text: string) {
+  const { airlock, our } = useLocalState.getState()
+  const contents = tokenize(text);
+  const pokeObj = buildDM(our, recipient, contents)
+  console.log(pokeObj, "pokeobj")
+  return await airlock.poke(pokeObj)
 }

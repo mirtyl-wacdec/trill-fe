@@ -3,6 +3,7 @@ import { Svg, Info, LeapArrow, Messages, Smiley, Swap } from "../../ui/Icons";
 import reply from "../../icons/reply.svg";
 import quote from "../../icons/quote.svg";
 import repost from "../../icons/repost.svg";
+import emoji from "../../icons/emoji.svg";
 import { useState } from "react";
 import useLocalState from "../../logic/state";
 import { addPost } from "../../logic/actions";
@@ -11,7 +12,7 @@ interface FooterProps {
 }
 function Footer({ node }: FooterProps) {
   const [reacts, setReacts] = useState(false);
-  const { setReply, setQuote, setReacting } = useLocalState();
+  const { setReply, setQuote, setReacting, setEngagement} = useLocalState();
   const doReply = () => setReply(node);
   const doQuote = () => setQuote(node);
   const childrenCount = node.children
@@ -34,39 +35,57 @@ function Footer({ node }: FooterProps) {
     const r = await addPost(c, undefined);
     if (r) console.log("posted");
   }
+  function doReact(){
+    setReacting(node)
+  }
+  function showReplyCount(){
+    const authors = Object.keys(node.children).map(i => node.children[i].post.author);
+    setEngagement({type: "replies", ships: authors}, node);
+  }
+  function showRepostCount(){
+    console.log(node.engagement)
+    const ships = node.engagement.shared.map(entry => entry.host)
+    setEngagement({type: "reposts", ships:ships}, node);
+  }
+  function showQuoteCount(){
+    setEngagement({type: "quotes", quotes: node.engagement.quoted}, node);
+  }
+  function showReactCount(){
+    setEngagement({type: "reacts", reacts: node.engagement.reacts}, node);
+  }
 
   // onClick={() => setReacts(!reacts)
   return (
     <footer>
-      <div onClick={doReply} className="icon">
-        <span className="reply-count">
+      <div className="icon">
+        <span onClick={showReplyCount} className="reply-count">
           {childrenCount > 0 ? childrenCount : ""}
         </span>
-        <img src={reply} alt="" />
+        <img onClick={doReply} src={reply} alt="" />
       </div>
-      <div onClick={doRP} className="icon">
-        <span className="repost-count">
+      <div className="icon">
+        <span onClick={showRepostCount} className="repost-count">
           {node.engagement.shared.length > 0
             ? node.engagement.shared.length
             : ""}
         </span>
-        <img src={repost} alt="" />
+        <img onClick={doRP} src={repost} alt="" />
       </div>
-      <div onClick={doQuote} className="icon">
-        <span className="quote-count">
+      <div className="icon">
+        <span onClick={showQuoteCount} className="quote-count">
           {node.engagement.quoted.length > 0
             ? node.engagement.quoted.length
             : ""}
         </span>
-        <img src={quote} alt="" />
+        <img onClick={doQuote} src={quote} alt="" />
       </div>
-      <div onClick={() => setReacting(node)} className="icon">
-        <span className="reaction-count">
+      <div  className="icon">
+        <span onClick={showReactCount} className="reaction-count">
           {Object.keys(node.engagement.reacts).length
             ? Object.keys(node.engagement.reacts).length
             : ""}
         </span>
-        <Svg icon={Smiley()} />
+        <img onClick={doReact} src={emoji} alt="" />
       </div>
     </footer>
   );

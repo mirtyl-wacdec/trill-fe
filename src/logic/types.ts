@@ -1,7 +1,11 @@
 export interface Graph {
   [keys: ID]: Node;
 }
-
+export interface GraphStoreNode {
+  id: ID;
+  post: Poast;
+  children: Graph | null;
+};
 export type Node = FlatNode | FullNode;
 export interface FlatNode {
   id: ID;
@@ -27,8 +31,8 @@ export interface Poast {
 }
 export interface Engagement {
   reacts: ReactMap;
-  quoted: Array<{ ship: Ship; id: ID }>;
-  shared: Array<{ ship: Ship; id: ID }>;
+  quoted: Array<{ host: Ship; id: ID }>;
+  shared: Array<{ host: Ship; id: ID }>;
 }
 export interface ReactMap {
   [key: Ship]: string; // emoji
@@ -44,23 +48,26 @@ interface MentionContent {
 }
 // lets have external data as references too. TODO refine it.
 export interface ReferenceContent {
-  reference:
-    | LandscapePostReference
-    | FeedReference
-    | GroupReference
-};
+  reference: ReferenceType
+
+}
+export type ReferenceType = LandscapePostReference
+  | FeedReference
+  | GroupReference
 interface GroupReference {
   group: string;
 }
-interface LandscapePostReference {
-  graph: string;
-  group: string;
-  index: string;
+export interface LandscapePostReference {
+  graph: {
+    graph: string;
+    group: string;
+    index: string;
+  }
 }
 export interface FeedReference {
   feed: {
-      id: ID;
-      host: Ship;
+    id: ID;
+    host: Ship;
   };
 }
 export interface TwatterReference {
@@ -70,7 +77,10 @@ export interface TwatterReference {
   };
 }
 interface CodeContent {
-  code: string;
+  code: {
+    expression: string;
+    output: string[][]
+  };
 }
 export type Content =
   | TextContent
@@ -91,4 +101,52 @@ type Service = "urbit" | "twitter";
 export interface ListEntry {
   service: Service
   username: string
+}
+export interface ListType {
+  description: string;
+  members: ListEntry[];
+  name: string;
+  symbol: string;
+  public: boolean;
+}
+
+export interface FollowAttempt {
+  ship: Ship;
+  timestamp: number;
+}
+export interface Key {
+  ship: Ship;
+  name: string;
+}
+export interface Policy {
+  read: Whitelist | Blacklist;
+  write: Whitelist | Blacklist;
+}
+export interface Whitelist {
+  whitelist: Ship[];
+}
+export interface Blacklist {
+  blacklist: Ship[];
+}
+
+export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
+
+type EngagementDisplay = SimpleEngagementDisplay | ReactsDisplay | QuotesDisplay
+interface SimpleEngagementDisplay {
+  type: "replies" | "reposts"
+  ships: Ship[]
+}
+interface QuotesDisplay {
+  type: "quotes",
+  quotes: PID[]
+}
+
+interface PID {
+  host: Ship,
+  id: ID
+}
+
+interface ReactsDisplay {
+  type: "reacts"
+  reacts: { [s: Ship]: string }
 }
