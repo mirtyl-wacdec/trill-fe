@@ -15,22 +15,17 @@ function Policy() {
   const [writeError, setWriteError] = useState(false);
   const [readList, setReadList] = useState<string[]>([]);
   const [writeList, setWriteList] = useState<string[]>([]);
-  console.log(policy, "poli");
-  console.log(readList, "rl")
-  console.log((policy.read as any).blacklist || (policy.read as any).whitelist, "mmm")
   useEffect(()=> {
-    setReadList((policy.read as any).blacklist || (policy.read as any).whitelist);
-    setWriteList((policy.write as any).blacklist || (policy.write as any).whitelist)
-    setReadLocked("whitelist" in policy.read)
-    setWriteLocked("whitelist" in policy.write)
+    setReadLocked("whitelist" in policy.read);
+    setWriteLocked("whitelist" in policy.write);
   }, [policy])
   useEffect(() => {
     if (readLocked) setReadList((policy.read as any).whitelist || []);
     else setReadList((policy.read as any).blacklist || [])
   }, [readLocked])
   useEffect(() => {
-    if (writeLocked) setReadList((policy.write as any).whitelist || []);
-    else setReadList((policy.write as any).blacklist || [])
+    if (writeLocked) setWriteList((policy.write as any).whitelist || []);
+    else setWriteList((policy.write as any).blacklist || [])
   }, [writeLocked])
 
   async function savePolicy() {
@@ -54,8 +49,8 @@ function Policy() {
     else setReadError(true);
   }
   function addToWrite() {
-    if (isValidPatp(readValue))
-      setReadList((e) => [...e, readValue]), setReadValue("");
+    if (isValidPatp(writeValue))
+      setWriteList((e) => [...e, writeValue]), setWriteValue("");
     else setWriteError(true);
   }
 

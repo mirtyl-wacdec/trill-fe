@@ -5,10 +5,12 @@ import Urbit from "@urbit/http-api";
 // @ts-ignore TODO window typings
 // window.airlock = airlock;
 
+export const URL = "http://localhost";
+
 export function bootstrapApi(): Urbit {
-  // const airlock = new Urbit("");
-  const airlock = new Urbit("http://localhost");
+  const airlock = new Urbit(URL);
   airlock.ship = (window as any).ship;
+  console.log(window, "window")
   airlock.desk = "trill";
   airlock.verbose = true;
   airlock.onError = (e) => {

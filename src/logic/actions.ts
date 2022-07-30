@@ -45,6 +45,13 @@ export async function scryGSNode(reference: LandscapePostReference){
   return res;
 }
 
+export async function scryHark(){
+  const { airlock } = useLocalState.getState()
+  const path = `/`;
+  const res = await airlock.scry({ app: "feed-hark", path: path });
+  return res
+}
+
 // scries>
 
 // <subscriptions
@@ -64,6 +71,31 @@ export async function unsub(sub: number) {
   const { airlock } = useLocalState.getState()
   const res = await airlock.unsubscribe(sub)
   return res
+}
+
+export async function subscribeFeed(handler: Handler){
+  const { airlock } = useLocalState.getState();
+  console.log(airlock, "airlock")
+  const res = await airlock.subscribe({
+    app: "feed-store",
+    path: "/frontend",
+    event: handler,
+    err: (err: any, id: string) => console.log(err, "error on feed-store subscription"),
+    quit: (data: any) => console.log(data, "feed-store subscription kicked")
+  });
+  console.log(res, "subscribed to feed store");
+}
+
+export async function subscribeHark(handler: Handler){
+  const { airlock } = useLocalState.getState();
+  const res = await airlock.subscribe({
+    app: "feed-hark",
+    path: "/frontend",
+    event: handler,
+    err: (err: any, id: string) => console.log(err, "error on feed-hark subscription"),
+    quit: (data: any) => console.log(data, "feed-hark subscription kicked")
+  });
+  console.log(res, "subscribed to feed hark");
 }
 
 // subscriptions>

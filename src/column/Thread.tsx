@@ -59,4 +59,3 @@ function Replies({replyGraph, author }: RepliesProps) {
     </div>
   );
 }
-// http://localhost:3000/~nec/170141184505733630087396248548536221696

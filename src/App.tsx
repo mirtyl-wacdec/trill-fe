@@ -39,7 +39,7 @@ function App() {
     scryPolicy();
     scryLists();
     subscribeFeed();
-    subscribeJoins();
+    subscribeHark();
     // scryFollows();
   }, []);
   return (

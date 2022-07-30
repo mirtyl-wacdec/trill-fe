@@ -1,9 +1,9 @@
 import create, { State } from "zustand";
-import { bootstrapApi } from "./api";
+import { URL, bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
-import type { ListType, Node, FullNode, ID, Ship, Graph, SubscriptionStatus, FollowAttempt, Key, Policy, Whitelist, Blacklist, EngagementDisplay } from "./types";
-import { scryNodeFlat, scryNodeFull } from "./actions";
+import type { ListType, Node, FullNode, ID, Ship, Graph, SubscriptionStatus, FollowAttempt, Key, Policy, Whitelist, Blacklist, EngagementDisplay, Notifications } from "./types";
+import { scryHark, scryNodeFlat, scryNodeFull, subscribeFeed, subscribeHark } from "./actions";
 import { NullIcon } from "../ui/Icons";
 
 export interface LocalState {
@@ -55,6 +55,7 @@ export interface LocalState {
   setEngagement: (e: EngagementDisplay, n: Node) => void;
   playingWith: PlayAreaOptions;
   resetPlayArea: () => void;
+  notifications: Notifications
 };
 type PlayAreaOptions = "replyTo" | "quoteTo" | "reactingTo" | "engagement" | "userPreview" | "lists" | ""
 
@@ -82,7 +83,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   errorCount: 0,
   // XX this logic should be handled by eventsource lib, but channel
   // resume doesn't work properly
-  airlock: new Urbit("http://localhost"),
+  airlock: new Urbit(URL),
   init: () => {
     const airlock = bootstrapApi();
     set({ airlock: airlock, our: "~" + airlock.ship as string })
@@ -191,7 +192,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     }
   },
   subscribeFeed: async () => {
-    const airlock = get().airlock;
     const reducer = (data: any) => {
       const { activeThread, activeFeed, activeGraph } = get();
       console.log(activeFeed, "af");
@@ -213,17 +213,16 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       }
       // if (activeFeed === data.ship )
     };
-    const res = await airlock.subscribe({
-      app: "feed-store",
-      path: "/frontend",
-      event: reducer,
-      err: (err: any, id: string) => console.log(err, "error on feed-store subscription"),
-      quit: (data: any) => console.log(data, "feed-store subscription kicked")
-    });
-    console.log(res, "subscribed to feed store");
-    console.log(airlock, "airlock")
+    subscribeFeed(reducer);
   },
-  subscribeHark: async () => { },
+  subscribeHark: async () => { 
+    const data = await scryHark();
+    const reducer = (data: any) => {
+      console.log(data, "hark data")
+    }
+    subscribeHark(reducer);
+    set({notifications: data["trill-hark-scry"]})
+  },
   policy: {
     read: { whitelist: [] },
     write: { whitelist: [] },
@@ -277,7 +276,10 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   engagement: null,
   setEngagement: (e: EngagementDisplay, n: Node) => set({ engagement: e, highlighted: n, playingWith: "engagement" }),
   playingWith: "",
-  resetPlayArea: () => set({ playingWith: "" })
+  resetPlayArea: () => set({ playingWith: "" }),
+  notifications: {
+    follows: [], engagement: [], unread: []
+  }
 }));
 
 export default useLocalState;
@@ -293,6 +295,3 @@ function liveUpdateThread(data: any, activeThread: any, set: any) {
   if (data["feed-post-update"]["thread-updated"].thread.id === activeThread.id)
     set({ activeThread: data["feed-post-update"]["thread-updated"].thread });
 }
-
-// http://localhost/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone.json
-// http://localhost/~/scry/graph-store/graph/~zod/idle-chat-7267/node/siblings/newest/lone/100.json

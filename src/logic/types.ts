@@ -131,7 +131,7 @@ export interface Blacklist {
 
 export type SubscriptionStatus = "connected" | "disconnected" | "reconnecting";
 
-type EngagementDisplay = SimpleEngagementDisplay | ReactsDisplay | QuotesDisplay
+export type EngagementDisplay = SimpleEngagementDisplay | ReactsDisplay | QuotesDisplay
 interface SimpleEngagementDisplay {
   type: "replies" | "reposts"
   ships: Ship[]
@@ -141,7 +141,7 @@ interface QuotesDisplay {
   quotes: PID[]
 }
 
-interface PID {
+export interface PID {
   host: Ship,
   id: ID
 }
@@ -149,4 +149,48 @@ interface PID {
 interface ReactsDisplay {
   type: "reacts"
   reacts: { [s: Ship]: string }
+}
+// Notifications
+export interface Notifications {
+  follows: FollowNotification[];
+  engagement: Notification[];
+  unread: PID[]
+}
+export type Notification =
+  ReactNotification
+  | ReplyNotification
+  | QuoteNotification
+  | RepostNotification
+  | MentionNotification
+
+export interface FollowNotification {
+  follow: Ship
+}
+export interface ReactNotification {
+  react: {
+    pid: PID,
+    ship: Ship,
+    react: string,
+    time: number
+  }
+}
+export interface ReplyNotification {
+  reply: {
+    ab: PID, ad: PID, ship: Ship, time: number
+  }
+}
+export interface QuoteNotification {
+  quote: {
+    ab: PID, ad: PID, ship: Ship, time: number
+  }
+}
+export interface RepostNotification {
+  rt: {
+    ab: PID, ad: PID, ship: Ship, time: number
+  }
+}
+export interface MentionNotification {
+  mention: {
+    pid: PID, ship: Ship, time: number
+  }
 }

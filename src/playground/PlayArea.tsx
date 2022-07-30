@@ -89,9 +89,11 @@ function Engagement(){
       {engagement.type === "quotes" && 
       <div className="quotes">
         <p>Quoted by:</p>
-        {engagement.ships.map(s => {
+        {engagement.quotes.map(q => {
           return(
-            <p key={s}>{s}</p>
+            <p key={JSON.stringify(q)}>
+              <a href={`${q.host}/${q.id}`}>{q.host}</a>
+              </p>
           )
         })}
       </div>
