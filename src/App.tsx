@@ -44,7 +44,7 @@ function App() {
   }, []);
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename="/apps/trill/">
         <Leftbar />
         <Routes>
           <Route path="/" element={<Timeline />} />

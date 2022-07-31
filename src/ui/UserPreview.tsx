@@ -61,7 +61,8 @@ export default function ({ patp }: UserPreviewProps) {
     follow(patp, async (data: any) => {
       let acked = false;
       console.log(data, "follow data at userpreview.tsx");
-      if (data) {
+      if (data && data !== "trying to follow") {
+        console.log("wtf")
         acked = true;
         setLoading(false);
         if (data["trill-follow-update"]){

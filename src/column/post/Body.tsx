@@ -23,6 +23,7 @@ interface BodyProps {
 function Body({ contents }: BodyProps) {
   const [quote, setQuote] = useState<Node | null>(null);
   useEffect(() => {
+    let mounted = true;
     const ref = contents.find((c) => "reference" in c);
     if (ref) {
       const r = ref as ReferenceContent;
@@ -32,6 +33,9 @@ function Body({ contents }: BodyProps) {
         else setQuote(null);
       });
     } else setQuote(null);
+    return () => {
+      mounted = false;
+    }
   }, [JSON.stringify(contents)]);
   const { scryFeed } = useLocalState();
   function isMedia(c: Content): c is URLContent {

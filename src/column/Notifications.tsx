@@ -35,6 +35,7 @@ function Notifications() {
             <Note key={JSON.stringify(n)} n={n} />
           ))}
         </div>
+        {!!notifications.unread.length && 
         <div className="unread">
           <p onClick={() => setShowUnread(!showUnread)}>Unread poasts</p>
           {showUnread &&
@@ -42,6 +43,7 @@ function Notifications() {
               <Pid key={JSON.stringify(pid)} pid={pid} />
             ))}
         </div>
+}
       </div>
     </div>
   );
@@ -55,7 +57,6 @@ interface NoteProps {
 function Note({ n }: NoteProps) {
   const { notifications, scryHark } = useLocalState();
   async function closeNote() {
-    console.log(n, "closing note")
     const res = await dismissNote(n)
     console.log(res, "res")
     if (res) scryHark()

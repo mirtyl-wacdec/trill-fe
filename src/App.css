@@ -236,10 +236,10 @@ a,p,h1,h2,h3,h4,h5,h6{
   border-top: 1px solid grey;
 }
 #main-column{
-  width: 50%;
+  width:65%;
   overflow-y: scroll;
   scrollbar-width: none;
-  margin-top: 1rem;
+  margin: 1rem;
 }
 #main-column::-webkit-scrollbar { /* WebKit */
   width: 0;
@@ -265,6 +265,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   border-radius: 0.8rem;
   display: flex;
   justify-content: space-between;
+  margin-bottom: 0.5rem;
 }
 #main-column > header > h4{
   margin: 0;
@@ -603,7 +604,7 @@ footer .icon span:hover{
 #play-column{
   width: 25%;
   margin: 1rem;
-  margin-right: 10rem;
+  margin-right: 2rem;
   display: flex;
   flex-direction: column;
 }
