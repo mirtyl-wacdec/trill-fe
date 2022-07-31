@@ -263,6 +263,8 @@ a,p,h1,h2,h3,h4,h5,h6{
   background-color: var(--grey-background);
   padding: 1rem;
   border-radius: 0.8rem;
+  display: flex;
+  justify-content: space-between;
 }
 #main-column > header > h4{
   margin: 0;
@@ -764,10 +766,6 @@ a.list-link{
   display: block;
   margin: auto 0;
 }
-.timeline-column header{
-  display: flex;
-  justify-content: space-between;
-}
 .sigil, .author{
   cursor: pointer;
 }
@@ -857,6 +855,7 @@ a.list-link{
   border: 3px solid transparent;
   display: flex;
   height: 50px;
+  position: relative;
 }
 .note .author{
   display: flex;
@@ -883,4 +882,16 @@ a.list-link{
 .note-content a:hover{
   text-decoration: underline;
   cursor: pointer;
+}
+.close-note{
+  border:2px solid black;
+  border-radius: 80%;
+  position: absolute;
+  top: -10px;
+  left: -2px;
+  cursor: pointer;
+}
+.close-note:hover{
+  border: 2px solid red;
+  color: red;
 }

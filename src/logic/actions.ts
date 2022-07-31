@@ -1,4 +1,4 @@
-import type { LandscapePostReference, Ship, ID, Content, Node, ListEntry, Policy, ListType } from "./types";
+import type { Notification, LandscapePostReference, Ship, ID, Content, Node, ListEntry, Policy, ListType } from "./types";
 import useLocalState from "./state";
 import { buildDM, tokenize } from "./utils";
 import { patp2dec } from "./ob3/co";
@@ -273,5 +273,22 @@ export async function postDM(recipient: Ship, text: string) {
   const contents = tokenize(text);
   const pokeObj = buildDM(our, recipient, contents)
   console.log(pokeObj, "pokeobj")
+  return await airlock.poke(pokeObj)
+}
+
+// notifications
+
+export async function wipeNotes(){
+  const { airlock } = useLocalState.getState()
+  const json = {wipe: null};
+  const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
+  return await airlock.poke(pokeObj)
+}
+
+export async function dismissNote(n: Notification){
+  const { airlock } = useLocalState.getState()
+  const json = {dismiss: n};
+  console.log(json, "closing note")
+  const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
   return await airlock.poke(pokeObj)
 }

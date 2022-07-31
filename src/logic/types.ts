@@ -154,10 +154,11 @@ interface ReactsDisplay {
 export interface Notifications {
   follows: FollowNotification[];
   unfollows: UnfollowNotification[];
-  engagement: Notification[];
+  engagement: EngagementNotification[];
   unread: PID[]
 }
-export type Notification =
+export type Notification = EngagementNotification | FollowNotification | UnfollowNotification
+export type EngagementNotification =
   ReactNotification
   | ReplyNotification
   | QuoteNotification

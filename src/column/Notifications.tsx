@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { wipeNotes, dismissNote } from "../logic/actions";
 import useLocalState from "../logic/state";
 import {
   FollowNotification,
@@ -10,13 +11,19 @@ import { date_diff } from "../logic/utils";
 import Sigil from "../ui/Sigil";
 
 function Notifications() {
-  const { notifications } = useLocalState();
+  const { notifications, scryHark } = useLocalState();
   const [showUnread, setShowUnread] = useState(false);
   console.log(notifications, "notifications");
+  async function wipe() {
+    const res = await wipeNotes();
+    console.log(res, "wiped");
+    if (res) scryHark();
+  }
   return (
     <div id="main-column">
       <header>
         <h4 id="column-title">Notifications</h4>
+        <button onClick={wipe}>Wipe</button>
       </header>
       <div id="notifications">
         <div className="news">
@@ -43,12 +50,22 @@ function Notifications() {
 export default Notifications;
 
 interface NoteProps {
-  n: Notification | FollowNotification | UnfollowNotification;
+  n: Notification
 }
 function Note({ n }: NoteProps) {
+  const { notifications, scryHark } = useLocalState();
+  async function closeNote() {
+    console.log(n, "closing note")
+    const res = await dismissNote(n)
+    console.log(res, "res")
+    if (res) scryHark()
+  }
   if ("follow" in n)
     return (
       <div className="note follow-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.follow.ship} size={30} />
@@ -64,6 +81,9 @@ function Note({ n }: NoteProps) {
   else if ("unfollow" in n)
     return (
       <div className="note unfollow-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.unfollow.ship} size={30} />
@@ -79,6 +99,9 @@ function Note({ n }: NoteProps) {
   else if ("mention" in n)
     return (
       <div className="note react-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.mention.ship} size={30} />
@@ -99,6 +122,9 @@ function Note({ n }: NoteProps) {
   else if ("react" in n)
     return (
       <div className="note react-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.react.ship} size={30} />
@@ -117,6 +143,9 @@ function Note({ n }: NoteProps) {
   else if ("reply" in n)
     return (
       <div className="note reply-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.reply.ship} size={30} />
@@ -140,6 +169,9 @@ function Note({ n }: NoteProps) {
   else if ("quote" in n)
     return (
       <div className="note quote-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.quote.ship} size={30} />
@@ -163,6 +195,9 @@ function Note({ n }: NoteProps) {
   else if ("rt" in n)
     return (
       <div className="note repost-note">
+        <div onClick={closeNote} className="close-note">
+          x
+        </div>
         <div className="author">
           <div className="sigil">
             <Sigil patp={n.rt.ship} size={30} />

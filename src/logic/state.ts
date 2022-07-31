@@ -32,6 +32,7 @@ export interface LocalState {
   scryFeed: (feed: string) => Promise<void>;
   scryThread: (host: Ship, id: ID) => Promise<void>;
   scryFollows: () => Promise<void>;
+  scryHark: () => Promise<void>;
   scryLists: () => Promise<void>;
   scryList: (symbol: string) => Promise<void>;
   subscribeFeed: () => Promise<void>;
@@ -216,12 +217,15 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     subscribeFeed(reducer);
   },
   subscribeHark: async () => { 
-    const data = await scryHark();
+    const scry = get().scryHark;
     const reducer = (data: any) => {
-      console.log(data, "hark data")
+      if (data) scry()
     }
     subscribeHark(reducer);
-    set({notifications: data["trill-hark-scry"]})
+  },
+  scryHark: async () => {
+      const data = await scryHark();
+      set({notifications: data["trill-hark-scry"]})
   },
   policy: {
     read: { whitelist: [] },
