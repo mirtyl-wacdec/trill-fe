@@ -10,21 +10,13 @@ import { addReact, editList } from "../logic/actions";
 import { stringToSymbol } from "../logic/utils";
 
 export default function () {
-  const [listsScreen, setl] = useState(false);
-  const [listScreen, sete] = useState(false);
   const loc = useLocation();
   useEffect(() => {
     const split = loc.pathname.split("/");
     console.log(split, "esplit");
-    if (!split.includes(preview)) resetPlayArea();
-    if (split[1] === "lists" && split.length === 2) {
-      setl(true);
-      sete(false);
-    }
-    if (split[1] === "lists" && split[2] === "members") {
-      sete(true);
-      setl(false);
-    }
+    if (split[1] === "lists" && split.length === 2) setPlayArea("lists")
+    else if (split[1] === "lists" && split[2] === "members") setPlayArea("listEdit")
+    else if (!split.slice(2).includes(preview)) resetPlayArea();
   }, [loc]);
   const {
     playingWith,
@@ -34,7 +26,9 @@ export default function () {
     reactingTo,
     engagement,
     resetPlayArea,
+    setPlayArea
   } = useLocalState();
+  console.log(playingWith, "playing with")
   return (
     <div id="play-column">
       <header>
@@ -48,8 +42,8 @@ export default function () {
         <PlayComposer node={quoteTo} interaction="quote" />
       )}
       {playingWith === "reactingTo" && <ReactionBox node={reactingTo} />}
-      {listsScreen && <ListSubMenu />}
-      {listScreen && <EditList />}
+      {playingWith === "lists" && <ListSubMenu />}
+      {playingWith === "listEdit" && <EditList />}
       {playingWith === "engagement" && <Engagement />}
     </div>
   );

@@ -32,13 +32,6 @@ function DMScreen() {
   const [nodes, setNodes] = useState<GraphStoreNode[]>([]);
   const [sub, setSub] = useState(0);
   const [text, setText] = useState("");
-  const retardedIndexes = [
-    "82052352",
-    "54812691696687",
-    "1979319552",
-    "101318240670642393193129603204682285312",
-    "319065135",
-  ];
 
   useEffect(() => {
     const patp = location.pathname.split("/")[2];
@@ -87,7 +80,7 @@ function DMScreen() {
         <div id="dm-container">
           <div ref={dmDiv} id="dm-nodes">
             {nodes.map((n, i) => (
-              <DM key={n.id + i} gsNode={n} />
+              <DM key={n.id} gsNode={n} />
             ))}
           </div>
           <div id="dm-input">
@@ -129,19 +122,19 @@ function DM({ gsNode }: DMProps) {
       <div className="contents">
         {gsNode.post.contents.map((c, i) => {
           if ("text" in c)
-            return <span key={gsNode.id + c.text + i}>{c.text}</span>;
+            return <span key={gsNode.id + c.text}>{c.text}</span>;
           else if ("mention" in c)
-            return <span key={gsNode.id + c.mention + i}>{c.mention}</span>;
+            return <span key={gsNode.id + c.mention}>{c.mention}</span>;
           else if ("url" in c)
             return (
-              <a href={c.url} key={gsNode.id + c.url + i}>
+              <a href={c.url} key={gsNode.id + c.url}>
                 {c.url}
               </a>
             );
           else if ("reference" in c)
             return (
               <Reference
-                key={gsNode.id + JSON.stringify(c.reference) + i}
+                key={gsNode.id + JSON.stringify(c.reference)}
                 r={c.reference}
               />
             );
@@ -155,7 +148,7 @@ function DM({ gsNode }: DMProps) {
                 <code>{">" + c.code.output.join("")}</code>
               </div>
             );
-          else return <div key={gsNode.id + i}></div>;
+          else return <div key={gsNode.id}></div>;
         })}
       </div>
     </div>
@@ -179,7 +172,7 @@ function Reference({ r }: ReferenceProps) {
     }
   }
   return (
-    <div className="reference">
+    <div key={JSON.stringify(r)} className="reference">
       {content ? ( // TODO this only applies to Landscape posts
         <div className="reference-content">
           <DM gsNode={content} />

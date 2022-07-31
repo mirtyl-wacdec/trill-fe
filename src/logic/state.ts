@@ -55,12 +55,21 @@ export interface LocalState {
   engagement: EngagementDisplay | null;
   setEngagement: (e: EngagementDisplay, n: Node) => void;
   playingWith: PlayAreaOptions;
+  setPlayArea: (l: PlayAreaOptions) => void;
   resetPlayArea: () => void;
   notifications: Notifications;
   browsingList: ListType | null;
   setBrowsingList: (l: ListType) => void;
 };
-type PlayAreaOptions = "replyTo" | "quoteTo" | "reactingTo" | "engagement" | "userPreview" | "lists" | ""
+type PlayAreaOptions = "replyTo" 
+| "quoteTo" 
+| "reactingTo" 
+| "engagement" 
+| "userPreview" 
+| "lists" 
+| "listEdit"
+| "editProfile"
+| ""
 
 function wait(ms: number) {
   return new Promise((resolve, reject) => {
@@ -189,8 +198,8 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       });
     } catch {
       set({
-        activeFeed:"wronglist",
-        activeGraph:{}
+        activeFeed: "wronglist",
+        activeGraph: {}
       })
     }
   },
@@ -218,7 +227,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     };
     subscribeFeed(reducer);
   },
-  subscribeHark: async () => { 
+  subscribeHark: async () => {
     const scry = get().scryHark;
     const reducer = (data: any) => {
       if (data) scry()
@@ -226,8 +235,8 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     subscribeHark(reducer);
   },
   scryHark: async () => {
-      const data = await scryHark();
-      set({notifications: data["trill-hark-scry"]})
+    const data = await scryHark();
+    set({ notifications: data["trill-hark-scry"] })
   },
   policy: {
     read: { whitelist: [] },
@@ -282,12 +291,13 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   engagement: null,
   setEngagement: (e: EngagementDisplay, n: Node) => set({ engagement: e, highlighted: n, playingWith: "engagement" }),
   playingWith: "",
+  setPlayArea: (l: PlayAreaOptions) => set({ playingWith: l }),
   resetPlayArea: () => set({ playingWith: "" }),
   notifications: {
     follows: [], unfollows: [], engagement: [], unread: []
   },
   browsingList: null,
-  setBrowsingList: (l: ListType) => set({browsingList: l})
+  setBrowsingList: (l: ListType) => set({ browsingList: l })
 }));
 
 export default useLocalState;
