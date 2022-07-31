@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import useLocalState from "../logic/state";
 import { setPolicy, setPolicyList } from "../logic/actions";
-import { isValidPatp } from "../logic/ob3/co";
+import { isValidPatp } from "../logic/ob/co";
 type listType = "blacklist" | "whitelist"
 function Policy() {
 
@@ -38,8 +38,6 @@ function Policy() {
     console.log(newPolicy, "np")
     const sp = await setPolicy(newPolicy);
     console.log(sp, "sp")
-    // const list = await setPolicyList("a", tab, plist)
-    // console.log(list, "list")
   }
 
 

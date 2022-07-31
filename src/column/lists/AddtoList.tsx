@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import useLocalState from "../../logic/state";
-import { createList, saveToLists } from "../../logic/actions";
+import { saveToLists } from "../../logic/actions";
 import type { ListType } from "../../logic/types";
 import { useLocation } from "react-router-dom";
-import { isValidPatp } from "../../logic/ob3/co";
+import { isValidPatp } from "../../logic/ob/co";
+import { useNavigate } from "react-router-dom";
 
 function Lists() {
+  let navigate = useNavigate();
+
   // patp validation
   const location = useLocation();
   const [patpError, setPatpError] = useState(false);
@@ -18,11 +21,10 @@ function Lists() {
       setPatp(patp)
     } else setPatpError(true)
   }, [location.pathname]);
-  const { lists, preview, setPreview } = useLocalState();
-  console.log(lists, "lists");
+  const { lists, setPreview } = useLocalState();
   async function saveLists() {
-    const r = await saveToLists(preview, addingToList, lists);
-    if (r) console.log(r, "r");
+    const r = await saveToLists(patp, addingToList, lists);
+    if (r) navigate("/lists")
   }
   return (
     <div id="main-column">

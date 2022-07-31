@@ -8,7 +8,7 @@ import type {
   ReferenceType,
 } from "../logic/types";
 import { useLocation } from "react-router-dom";
-import { isValidPatp } from "../logic/ob3/co";
+import { isValidPatp } from "../logic/ob/co";
 import {
   postDM,
   scryDM,
@@ -32,6 +32,13 @@ function DMScreen() {
   const [nodes, setNodes] = useState<GraphStoreNode[]>([]);
   const [sub, setSub] = useState(0);
   const [text, setText] = useState("");
+  const retardedIndexes = [
+    "82052352",
+    "54812691696687",
+    "1979319552",
+    "101318240670642393193129603204682285312",
+    "319065135",
+  ];
 
   useEffect(() => {
     const patp = location.pathname.split("/")[2];
@@ -50,7 +57,8 @@ function DMScreen() {
         const graph = res["graph-update"]["add-nodes"]["nodes"];
         const n = Object.keys(graph)
           .sort()
-          .map((index) => graph[index]);
+          .map((index) => graph[index])
+          .filter(nn => !!nn.post.contents.length);
         setNodes(n);
       });
     } else setPatpError(true);
@@ -78,8 +86,8 @@ function DMScreen() {
       ) : (
         <div id="dm-container">
           <div ref={dmDiv} id="dm-nodes">
-            {nodes.map((n) => (
-              <DM key={n.id} gsNode={n} />
+            {nodes.map((n, i) => (
+              <DM key={n.id + i} gsNode={n} />
             ))}
           </div>
           <div id="dm-input">
@@ -104,7 +112,7 @@ interface DMProps {
 }
 
 function DM({ gsNode }: DMProps) {
-  console.log(gsNode.post["time-sent"], "ts")
+  console.log(gsNode, "gsnode");
   return (
     <div className="dm">
       <div className="metadata">
@@ -120,7 +128,8 @@ function DM({ gsNode }: DMProps) {
       </div>
       <div className="contents">
         {gsNode.post.contents.map((c, i) => {
-          if ("text" in c) return <span key={gsNode.id + c.text + i}>{c.text}</span>;
+          if ("text" in c)
+            return <span key={gsNode.id + c.text + i}>{c.text}</span>;
           else if ("mention" in c)
             return <span key={gsNode.id + c.mention + i}>{c.mention}</span>;
           else if ("url" in c)
@@ -138,7 +147,10 @@ function DM({ gsNode }: DMProps) {
             );
           else if ("code" in c)
             return (
-              <div key={gsNode.id + JSON.stringify(c.code)} className="codeblock">
+              <div
+                key={gsNode.id + JSON.stringify(c.code)}
+                className="codeblock"
+              >
                 <code>{c.code.expression}</code>
                 <code>{">" + c.code.output.join("")}</code>
               </div>

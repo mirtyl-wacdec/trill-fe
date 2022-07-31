@@ -60,9 +60,7 @@ export default function ({ patp }: UserPreviewProps) {
     setLoading(true);
     follow(patp, async (data: any) => {
       let acked = false;
-      console.log(data, "follow data at userpreview.tsx");
       if (data && data !== "trying to follow") {
-        console.log("wtf")
         acked = true;
         setLoading(false);
         if (data["trill-follow-update"]){
@@ -106,6 +104,9 @@ export default function ({ patp }: UserPreviewProps) {
   function goToLists(){
     navigate(`/lists/add/${patp}`);
   }
+  function goToDMs(){
+    navigate(`/messages/${patp}`);
+  }
   return (
     <div className="user-preview">
       <div className="metadata">
@@ -144,22 +145,17 @@ export default function ({ patp }: UserPreviewProps) {
           <p>Connection to {patp} timed out.</p>
           <p>He's either offline or does not have Trill installed</p>
           <p>Remind him?</p>
-          <button disabled={DMSent} onClick={shill}>
-            {DMSent ? "DM Sent" : "Send DM"}
-          </button>
         </div>
       )}
       {blocked && (
         <div className="follow-error">
           <p>{patp}'s' feed is locked</p>
           <p>You can request an invite by DM</p>
-          <button disabled={DMSent} onClick={beg}>
-            {DMSent ? "DM Sent" : "Send DM"}
-          </button>
         </div>
       )}
-      <div className="lists">
+      <div className="buttons">
         <button onClick={goToLists}>Add to a list</button>
+        <button onClick={goToDMs}>Send DM</button>
       </div>
 
       {/* <div className="user-data">

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import useLocalState from "./logic/state";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import "./App.css";
 import Leftbar from "./left/Leftbar";
 import Home from "./column/Home";
@@ -31,7 +30,8 @@ function App() {
     scryLists,
     subscribeFeed,
     subscribeHark,
-    subscribeJoins
+    subscribeJoins,
+    resetPlayArea
   } = useLocalState();
   useEffect(() => {
     init(),

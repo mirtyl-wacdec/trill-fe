@@ -2,9 +2,13 @@ import useLocalState from "../logic/state";
 import { createList, saveToLists } from "../logic/actions";
 import List from "./lists/List";
 import type { ListType } from "../logic/types";
+import { useEffect } from "react";
 
 function Lists() {
-  const { lists, preview,  } = useLocalState();
+  useEffect(()=> {
+    scryLists();
+  }, [])
+  const { lists, scryLists  } = useLocalState();
   console.log(lists, "lists");
 
   return (

@@ -7,13 +7,13 @@ interface ListProps {
 function List({ list }: ListProps) {
   return (
     <div className={`list`}>
-      <Link className="list-link title" to={`/lists/${list.name}`}>
+      <Link className="list-link title" to={`/lists/${list.symbol}`}>
         <div className="title">
           <h4>{list.name}</h4>
           <p>{list.description}</p>
         </div>
       </Link>
-      <Link className="list-link" to={`/lists/members/${list.name}`}>
+      <Link className="list-link" to={`/lists/members/${list.symbol}`}>
         <div className="members">
           <p>See {list.members.length} members</p>
         </div>

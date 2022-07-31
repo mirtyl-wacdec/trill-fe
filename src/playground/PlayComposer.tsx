@@ -102,12 +102,12 @@ export default function (pr: ComposerProps) {
   return (
     <div className="composer">
       <div className="composer-title playmenu-title">
-      <p
+      <p className="close-composer"
         onClick={() => {
           resetPlayArea()
         }}
       >
-        (x)
+        x
       </p>
       <p>
       {pr.interaction === "reply" 

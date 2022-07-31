@@ -56,7 +56,9 @@ export interface LocalState {
   setEngagement: (e: EngagementDisplay, n: Node) => void;
   playingWith: PlayAreaOptions;
   resetPlayArea: () => void;
-  notifications: Notifications
+  notifications: Notifications;
+  browsingList: ListType | null;
+  setBrowsingList: (l: ListType) => void;
 };
 type PlayAreaOptions = "replyTo" | "quoteTo" | "reactingTo" | "engagement" | "userPreview" | "lists" | ""
 
@@ -283,7 +285,9 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   resetPlayArea: () => set({ playingWith: "" }),
   notifications: {
     follows: [], unfollows: [], engagement: [], unread: []
-  }
+  },
+  browsingList: null,
+  setBrowsingList: (l: ListType) => set({browsingList: l})
 }));
 
 export default useLocalState;

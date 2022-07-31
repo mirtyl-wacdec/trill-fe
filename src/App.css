@@ -896,3 +896,15 @@ a.list-link{
   border: 2px solid red;
   color: red;
 }
+.close-composer{
+  border:2px solid black;
+  border-radius: 80%;
+  /* position: absolute;
+  top: -10px;
+  left: -2px; */
+  cursor: pointer;
+}
+.close-composer:hover{
+  border: 2px solid red;
+  color: red;
+}

@@ -9,7 +9,7 @@ import Urbit from "@urbit/http-api";
 export const URL = "http://localhost";
 
 export function bootstrapApi(): Urbit {
-  const airlock = new Urbit(URL);
+  const airlock = new Urbit(URL, "rovnel-midneb-lopfel-parsep");
   airlock.ship = (window as any).ship;
   console.log(window, "window")
   airlock.desk = "trill";

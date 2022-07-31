@@ -6,14 +6,17 @@ import Sigil from "../../ui/Sigil";
 function ListContents() {
   const location = useLocation();
   const listName = location.pathname.split("/")[3];
-  const { lists } = useLocalState();
+  const { lists, setBrowsingList } = useLocalState();
   const [list, setList] = useState<any>({});
   console.log(location.pathname.split("/"), "lists");
   console.log(lists, "lists");
   useEffect(() => {
     const muhlist = lists.find((l) => l.symbol === listName);
     console.log(muhlist, "ml")
-    if (muhlist) setList(muhlist);
+    if (muhlist) {
+      setList(muhlist);
+      setBrowsingList(muhlist)
+    }
   }, [location, lists]);
   return (
     <div id="main-column">
@@ -54,7 +57,7 @@ interface LMProps {
 }
 function ListMember({ name }: LMProps) {
   function promptDelete(){
-    
+
   }
   const { setPreview } = useLocalState();
   return (

@@ -108,6 +108,13 @@ export interface ListType {
   name: string;
   symbol: string;
   public: boolean;
+  image: string;
+}
+export interface ListEdit {
+  "new-name": string,
+  "new-desc": string,
+  "new-public": boolean,
+  "new-image": string;
 }
 
 export interface FollowAttempt {

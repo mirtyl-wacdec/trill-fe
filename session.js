@@ -1,1 +1,1 @@
-window.ship = "zod"
+window.ship = "mitmun-botlyt"

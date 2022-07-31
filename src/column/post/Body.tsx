@@ -30,13 +30,12 @@ function Body({ contents }: BodyProps) {
       const rr = r.reference as FeedReference;
       scryNodeFlat(rr.feed.host, rr.feed.id).then((res) => {
         if (res && "flat-node-scry" in res) setQuote(res["flat-node-scry"]);
-        else setQuote(null);
       });
-    } else setQuote(null);
+    }
     return () => {
       mounted = false;
     }
-  }, [JSON.stringify(contents)]);
+  }, [contents]);
   const { scryFeed } = useLocalState();
   function isMedia(c: Content): c is URLContent {
     return "url" in c && !!c.url.match(IMAGE_REGEX);

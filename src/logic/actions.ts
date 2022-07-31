@@ -1,7 +1,7 @@
-import type { Notification, LandscapePostReference, Ship, ID, Content, Node, ListEntry, Policy, ListType } from "./types";
+import type { Notification, LandscapePostReference, Ship, ID, Content, Node, ListEntry, Policy, ListType, ListEdit } from "./types";
 import useLocalState from "./state";
 import { buildDM, tokenize } from "./utils";
-import { patp2dec } from "./ob3/co";
+import { patp2dec } from "./ob/co";
 
 // scries
 
@@ -256,6 +256,20 @@ export async function saveToLists(user: string, symbols: string[], lists: ListTy
     }
   }
   return ress
+}
+
+export async function editList(symbol: string, l: ListEdit){
+  const { airlock } = useLocalState.getState()
+  const json = { "big-edit": {
+    symbol,
+    "new-symbol":l["new-symbol"],
+    "new-name": l["new-name"],
+    "new-desc": l["new-desc"],
+    "new-image":l["new-image"],
+    "new-public":l["new-public"],
+  } };
+  const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
+  return await airlock.poke(pokeObj);
 }
 
 // misc
