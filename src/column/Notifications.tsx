@@ -111,7 +111,7 @@ function Note({ n }: NoteProps) {
         </div>
         <div className="note-content">
           <p className="note-action">Mentioned you</p>
-          <a href={`/${n.mention.pid.host}/${n.mention.pid.id}`}>
+          <a href={`${n.mention.pid.host}/${n.mention.pid.id}`}>
             in this post
           </a>
         </div>
@@ -134,7 +134,7 @@ function Note({ n }: NoteProps) {
         </div>
         <div className="note-content">
           <p className="note-action">Reacted {n.react.react} to </p>
-          <a href={`/${n.react.pid.host}/${n.react.pid.id}`}>your post</a>
+          <a href={`${n.react.pid.host}/${n.react.pid.id}`}>your post</a>
         </div>
         <div className="note-time">
           <p>{date_diff(n.react.time, "short")}</p>

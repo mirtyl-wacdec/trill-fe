@@ -1,1 +1,0 @@
-window.ship = "mitmun-botlyt"

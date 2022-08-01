@@ -56,11 +56,10 @@ export default function (pr: ComposerProps) {
     const imgs = images.map((i) => {
       return { url: i };
     });
-    console.log(contents, "contents posted");
     const withMedia = [...contents, ...imgs];
     if (pr.replyTo) poastReply(withMedia)
     else if (pr.quote) poastQuote(withMedia)
-    else poastIt(contents)
+    else poastIt(withMedia)
     //    quit();
   }
   async function poastIt(c: Content[]){

@@ -8,7 +8,7 @@ import type {
   ReferenceType,
 } from "../logic/types";
 import { useLocation } from "react-router-dom";
-import { isValidPatp } from "../logic/ob/co";
+import { isValidPatp, co } from "../logic/ob/co";
 import {
   postDM,
   scryDM,
@@ -38,20 +38,26 @@ function DMScreen() {
     if (isValidPatp(patp)) {
       setPatp(patp);
       subscribeGS((data) => {
-        console.log(data, "graph-store data incoming");
         const graph = data["graph-update"]["add-nodes"]["nodes"];
-        const n = Object.keys(graph).map((index) => graph[index]);
-        setNodes((nds) => [...nds, ...n]);
+        const resource = data["graph-update"]["add-nodes"]["resource"];
+        const isDM = resource.name === "dm-inbox";
+        const dec = Object.keys(graph)[0].split("/")[1];
+        const isRightGuy = patp === co.patp(dec);
+        if (isRightGuy) {
+          const n = Object.keys(graph).map((index) => graph[index]);
+          setNodes((nds) => [...nds, ...n]);
+        }
       }).then((s) => {
         console.log(s, "subscribed to graph-store");
         setSub(s);
       });
+
       scryDM(patp).then((res) => {
         const graph = res["graph-update"]["add-nodes"]["nodes"];
         const n = Object.keys(graph)
           .sort()
           .map((index) => graph[index])
-          .filter(nn => !!nn.post.contents.length);
+          .filter((nn) => !!nn.post.contents.length);
         setNodes(n);
       });
     } else setPatpError(true);
@@ -64,8 +70,10 @@ function DMScreen() {
     if (dmDiv && dmDiv.current)
       dmDiv.current.scrollTop = dmDiv.current.scrollHeight;
   }, [nodes]);
-  async function sendDM() {
+  async function sendDM(e: any) {
+    e.preventDefault();
     const res = await postDM(patp, text);
+    setText("");
     console.log(res, "sent");
   }
 
@@ -83,15 +91,17 @@ function DMScreen() {
               <DM key={n.id} gsNode={n} />
             ))}
           </div>
-          <div id="dm-input">
-            <input
-              value={text}
-              onChange={(e) => setText(e.currentTarget.value)}
-              type="text"
-              placeholder="Write DM"
-            />
-            <button onClick={sendDM}>Send</button>
-          </div>
+          <form onSubmit={sendDM}>
+            <div id="dm-input">
+              <input
+                value={text}
+                onChange={(e) => setText(e.currentTarget.value)}
+                type="text"
+                placeholder="Write DM"
+              />
+              <button type="submit">Send</button>
+            </div>
+          </form>
         </div>
       )}
     </div>
@@ -105,7 +115,6 @@ interface DMProps {
 }
 
 function DM({ gsNode }: DMProps) {
-  console.log(gsNode, "gsnode");
   return (
     <div className="dm">
       <div className="metadata">
