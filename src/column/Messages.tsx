@@ -11,14 +11,12 @@ function Messages() {
   const [pals, setPals] = useState<Ship[]>([]);
   useEffect(() => {
     scryDMs().then((res) => {
-      console.log(res, "dms")
       if (res["graph-update"]) {
         const dudes = Object.keys(
           res["graph-update"]["add-nodes"]["nodes"]
         ).map((num) => co.patp(num.replace("/", "")));
         setPals(dudes);
       }
-      console.log(res, "scried DMs");
     });
   }, []);
   return (

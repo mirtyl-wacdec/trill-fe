@@ -9,8 +9,6 @@ function Lists() {
     scryLists();
   }, [])
   const { lists, scryLists  } = useLocalState();
-  console.log(lists, "lists");
-
   return (
     <div id="main-column">
       <header>

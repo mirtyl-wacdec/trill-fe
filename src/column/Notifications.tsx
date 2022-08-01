@@ -13,7 +13,6 @@ import Sigil from "../ui/Sigil";
 function Notifications() {
   const { notifications, scryHark } = useLocalState();
   const [showUnread, setShowUnread] = useState(false);
-  console.log(notifications, "notifications");
   async function wipe() {
     const res = await wipeNotes();
     console.log(res, "wiped");

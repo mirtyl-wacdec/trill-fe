@@ -35,7 +35,6 @@ function App() {
   } = useLocalState();
   useEffect(() => {
     init(),
-    console.log(airlock, "airlock");
     scryPolicy();
     scryLists();
     subscribeFeed();

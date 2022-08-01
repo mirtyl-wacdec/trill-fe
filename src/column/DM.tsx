@@ -170,13 +170,10 @@ interface ReferenceProps {
 function Reference({ r }: ReferenceProps) {
   const [content, setContent] = useState<any>(null);
   async function openReference() {
-    console.log(r, "r");
     if ("graph" in r) {
       const res = await scryGSNode(r);
-      console.log(res, "scried");
       const graph = res["graph-update"]["add-nodes"]["nodes"];
       const [node] = Object.keys(graph).map((i) => graph[i]);
-      console.log(node, "node");
       setContent(node);
     }
   }

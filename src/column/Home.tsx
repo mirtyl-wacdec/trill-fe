@@ -8,7 +8,6 @@ function Home(){
   useEffect(()=> {
     scryFeed(our)
   }, [])
-  console.log(activeGraph, "ag")
   return(
     <div id="main-column">
       <header>
