@@ -908,3 +908,9 @@ a.list-link{
   border: 2px solid red;
   color: red;
 }
+.deleted-post p{
+  margin: auto;
+}
+.deleted-post footer{
+  margin: auto;
+}

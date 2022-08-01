@@ -34,7 +34,7 @@ function Body({ contents }: BodyProps) {
     }
     return () => {
       mounted = false;
-    }
+    };
   }, [contents]);
   const { scryFeed } = useLocalState();
   function isMedia(c: Content): c is URLContent {
@@ -69,12 +69,16 @@ function Body({ contents }: BodyProps) {
               </a>
             );
           else if ("json" in c)
-          return (
-            <p key={JSON.stringify(c.json)}
-            className="external-content-warning">External content from "{c.json.origin}", use 
-            <a href="">UFA</a> 
-            to display.</p>
-          )
+            return (
+              <p
+                key={JSON.stringify(c.json)}
+                className="external-content-warning"
+              >
+                External content from "{c.json.origin}", use
+                <a href="">UFA</a>
+                to display.
+              </p>
+            );
         })}
       </div>
       <div className="body-media">
@@ -99,60 +103,71 @@ interface QuoteProps {
   q: Node;
 }
 function Quote({ q }: QuoteProps) {
-  let navigate = useNavigate();
-  const contents = q.post.contents;
-  const { scryFeed } = useLocalState();
-  function isMedia(c: Content): c is URLContent {
-    return "url" in c && !!c.url.match(IMAGE_REGEX);
-  }
-  const media: URLContent[] = contents.filter(isMedia);
-  const text = contents.filter((c) => {
-    return !("url" in c && c.url.match(IMAGE_REGEX));
-  });
-  const gotoQuote = () => {
-    navigate(`/${q.post.host}/${q.id}`)
-  };
-  return (
-    <div onClick={gotoQuote} className="quote-in-post">
-      <header>{q.post.author}</header>
-      <div className="body">
-        <div className="body-text">
-          {text.map((c, i) => {
-            if ("text" in c)
+  const tombstoned = typeof q.post === "string";
+  if (tombstoned)
+    return (
+      <div className="post deleted-post">
+        <p>Deleted post</p>
+      </div>
+    );
+  else {
+    let navigate = useNavigate();
+    const contents = q.post.contents;
+    const { scryFeed } = useLocalState();
+    function isMedia(c: Content): c is URLContent {
+      return "url" in c && !!c.url.match(IMAGE_REGEX);
+    }
+    const media: URLContent[] = contents.filter(isMedia);
+    const text = contents.filter((c) => {
+      return !("url" in c && c.url.match(IMAGE_REGEX));
+    });
+    const gotoQuote = () => {
+      navigate(`/${q.post.host}/${q.id}`);
+    };
+    return (
+      <div onClick={gotoQuote} className="quote-in-post">
+        <header>{q.post.author}</header>
+        <div className="body">
+          <div className="body-text">
+            {text.map((c, i) => {
+              if ("text" in c)
+                return (
+                  <Markdown key={JSON.stringify(c) + `{${i}}`}>
+                    {c.text}
+                  </Markdown>
+                );
+              else if ("mention" in c)
+                return (
+                  <p
+                    key={JSON.stringify(c) + `{${i}}`}
+                    className="mention"
+                    onClick={() => scryFeed(c.mention)}
+                  >
+                    {c.mention}
+                  </p>
+                );
+              else if ("url" in c)
+                return (
+                  <a key={JSON.stringify(c) + `{${i}}`} href={c.url}>
+                    {c.url}
+                  </a>
+                );
+            })}
+          </div>
+          <div className="body-media">
+            {media.map((m, i) => {
               return (
-                <Markdown key={JSON.stringify(c) + `{${i}}`}>{c.text}</Markdown>
+                <img
+                  key={m.url + i}
+                  className={`body-img body-img-1-of-${media.length}`}
+                  src={m.url}
+                  alt=""
+                />
               );
-            else if ("mention" in c)
-              return (
-                <p
-                  key={JSON.stringify(c) + `{${i}}`}
-                  className="mention"
-                  onClick={() => scryFeed(c.mention)}
-                >
-                  {c.mention}
-                </p>
-              );
-            else if ("url" in c)
-              return (
-                <a key={JSON.stringify(c) + `{${i}}`} href={c.url}>
-                  {c.url}
-                </a>
-              );
-          })}
-        </div>
-        <div className="body-media">
-          {media.map((m, i) => {
-            return (
-              <img
-                key={m.url + i}
-                className={`body-img body-img-1-of-${media.length}`}
-                src={m.url}
-                alt=""
-              />
-            );
-          })}
+            })}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
