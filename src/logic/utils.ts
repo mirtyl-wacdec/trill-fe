@@ -1,7 +1,7 @@
 import type { Content } from "./types";
 import { patp2dec, isValidPatp } from "./ob/co";
 import anyAscii from 'any-ascii';
-import type { Node } from "../logic/types";
+import type { Node, GraphStoreNode } from "../logic/types";
 
 
 type tokenizerData = [string, taggedContent[]];
@@ -224,4 +224,10 @@ export function repostData(n: Node): RepostData | null {
       host: n.post.contents[0].reference.feed.host
     }
   else return null
+}
+
+export function nodesFromGraphUpdate(g: any): GraphStoreNode[]{
+   const nodes = g["graph-update"]["add-nodes"]["nodes"];
+   return Object.keys(nodes).map(n => nodes[n]);
+
 }

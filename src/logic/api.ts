@@ -5,8 +5,8 @@ import Urbit from "@urbit/http-api";
 // @ts-ignore TODO window typings
 // window.airlock = airlock;
 
-// export const URL = "";
-export const URL = "http://localhost";
+export const URL = "";
+// export const URL = "http://localhost";
 
 export function bootstrapApi(): Urbit {
   const airlock = new Urbit(URL);

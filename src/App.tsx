@@ -15,6 +15,7 @@ import AddToList from "./column/lists/AddtoList";
 import ListFeed from "./column/lists/ListFeed";
 import ListContents from "./column/lists/ListContents";
 import Thread from "./column/Thread";
+import Changelog from "./column/Changelog";
 import Twatter from "./apps/twatter/Index";
 import PlayArea from "./playground/PlayArea";
 import Error from "./errors/404";
@@ -60,6 +61,7 @@ function App() {
           <Route path="apps/twitter" element={<Twatter />} />
           <Route path={`~:username`} element={<User />} />
           <Route path={`~:username/:id`} element={<Thread />} />
+          <Route path={`version`} element={<Changelog />} />
           <Route path=":else" element={<Error />} />
         </Routes>
         <PlayArea />

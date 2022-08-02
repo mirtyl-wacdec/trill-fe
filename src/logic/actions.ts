@@ -52,6 +52,13 @@ export async function scryHark(){
   return res
 }
 
+export async function scryChangelog(){
+  const { airlock } = useLocalState.getState()
+  const path = `/graph/~mirtyl-wacdec/trill-4.363/node/siblings/newest/lone/1`;
+  const res = await airlock.scry({ app: "graph-store", path: path });
+  return res
+}
+
 // scries>
 
 // <subscriptions

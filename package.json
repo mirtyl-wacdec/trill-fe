@@ -1,7 +1,7 @@
 {
   "name": "trill",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.4",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

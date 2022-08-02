@@ -6,7 +6,7 @@ import dms from "../icons/dms.svg";
 import notes from "../icons/notes.svg";
 import settings from "../icons/settings.svg";
 import pals from "../icons/pals.svg";
-import twatter from "../icons/twatter.svg"
+import twatter from "../icons/twatter.svg";
 import { useState } from "react";
 import MiniComposer from "../ui/MiniComposer";
 import Searchbox from "../ui/Searchbox";
@@ -61,16 +61,18 @@ function Leftbar() {
         </div>
         <MiniComposer />
       </div>
-      <div className="app-drawer applet">
+      {/* <div className="app-drawer applet">
         <div className="title">
           <p>Apps</p>
           <p className="bar"></p>
         </div>
-      </div>
-      <div className="footer">
-        <p>Trill</p>
-        <p className="version">0.1.0</p>
-      </div>
+      </div> */}
+      <Link className="link" to="/version">
+        <div className="footer">
+          <p>Trill</p>
+          <p className="version">0.1.4</p>
+        </div>
+      </Link>
     </div>
   );
 }

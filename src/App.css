@@ -90,6 +90,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   padding: 1rem;
   /* width: 100%; */
   background-color: white;
+  cursor: pointer;
 }
 #leftbar .version{
   margin-left: 2rem;
@@ -920,4 +921,8 @@ a.list-link{
 }
 .deleted-post footer{
   margin: auto;
+}
+
+#changelog{
+  padding: 1rem;
 }
