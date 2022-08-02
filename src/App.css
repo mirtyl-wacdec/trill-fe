@@ -862,6 +862,7 @@ a.list-link{
   display: flex;
   margin-right: 1rem;
   width: 35%;
+  cursor: pointer;
 }
 .note p{
   margin: auto auto auto 0.5rem;
@@ -879,6 +880,7 @@ a.list-link{
   display: block;
   width: 50%;
   text-decoration: none;
+  margin: auto;
 }
 .note-content a:hover{
   text-decoration: underline;
