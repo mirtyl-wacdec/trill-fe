@@ -217,10 +217,13 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
           else if (activeFeed === "thread")
             liveUpdateThread(data, activeThread, set)
         }
-        else if ("react-added" in data["feed-post-update"]) {
+        // else if ("react-added" in data["feed-post-update"]) {
 
-        }
+        // }
       } else if ("feed-engagement-update" in data) {
+        if ("post-quoted" in data["feed-engagement-update"])
+        console.log(data["feed-engagement-update"])
+        if ("post-shared" in data["feed-engagement-update"])
         console.log(data["feed-engagement-update"])
       }
       // if (activeFeed === data.ship )

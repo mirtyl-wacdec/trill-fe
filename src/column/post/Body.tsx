@@ -22,6 +22,7 @@ interface BodyProps {
 }
 function Body({ contents }: BodyProps) {
   const [quote, setQuote] = useState<Node | null>(null);
+  const [badQuote, setBadQuote] = useState("");
   useEffect(() => {
     let mounted = true;
     const ref = contents.find((c) => "reference" in c);
@@ -30,13 +31,14 @@ function Body({ contents }: BodyProps) {
       const rr = r.reference as FeedReference;
       scryNodeFlat(rr.feed.host, rr.feed.id).then((res) => {
         if (res && "flat-node-scry" in res) setQuote(res["flat-node-scry"]);
+        else if (res && "not-follow" in res) setBadQuote(rr.feed.host)
       });
     }
     return () => {
       mounted = false;
     };
   }, [contents]);
-  const { scryFeed } = useLocalState();
+  const { scryFeed, setPreview } = useLocalState();
   function isMedia(c: Content): c is URLContent {
     return "url" in c && !!c.url.match(IMAGE_REGEX);
   }
@@ -94,6 +96,15 @@ function Body({ contents }: BodyProps) {
         })}
       </div>
       {quote && <Quote q={quote} />}
+      {!!badQuote.length && 
+      <div className="quote-in-post">
+        <p className="bad-quote">Quoting post by 
+        <span onClick={()=> setPreview(badQuote)}
+        className="repostee">{badQuote}, 
+        </span>
+        who you do not follow</p>
+      </div>
+      }
     </div>
   );
 }
