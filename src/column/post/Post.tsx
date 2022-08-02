@@ -21,7 +21,6 @@ function Post({ node, fake, rter, rtat }: PostProps) {
     return (
       <div className="post deleted-post">
         <p>Deleted post</p>
-        <Footer node={node} />
       </div>
     );
   } else {
@@ -29,19 +28,21 @@ function Post({ node, fake, rter, rtat }: PostProps) {
     const cssClass =
       highlighted?.id === node.id ? "post highlighted-post" : "post";
     const [rp, setRP] = useState<Node | null>(null);
+    const [repostee, setRPP] = useState("");
     useEffect(() => {
       const rr = repostData(node);
       if (rr) {
         scryNodeFlat(rr.host, rr.id).then((res) => {
           if (res && "flat-node-scry" in res) setRP(res["flat-node-scry"]);
-          else setRP(null);
+          else if (res && "not-follow" in res) setRPP(rr.host)
         });
       }
       return () => {
         setRP(null);
+        setRPP("");
       };
     }, [node.id]);
-    if (rp) {
+    if (rp)
       return (
         <Post
           node={rp}
@@ -50,7 +51,25 @@ function Post({ node, fake, rter, rtat }: PostProps) {
           rtat={node.post.time}
         />
       );
-    } else {
+    else if (!!repostee)
+      return (
+        <div className={cssClass}>
+        <div className="left">
+          <div onClick={() => setPreview(node.post.author)} className="sigil">
+            <Sigil patp={node.post.author} size={50} />
+          </div>
+        </div>
+        <div className="right">
+        <Header node={node} rter={rter} rtat={rtat} />
+          <div className="bad-rp">
+            <p>Retweeting post by 
+              <span className="repostee" onClick={()=> setPreview(repostee)}>{repostee},</span>
+              who you do not follow.</p>
+          </div>
+        </div>
+      </div>
+      )
+  else
       return (
         <div className={cssClass}>
           <div className="left">
@@ -65,7 +84,6 @@ function Post({ node, fake, rter, rtat }: PostProps) {
           </div>
         </div>
       );
-    }
   }
 }
 

@@ -340,7 +340,12 @@ a,p,h1,h2,h3,h4,h5,h6{
   margin: 0 1rem 0 0;
   cursor: pointer;
 }
-
+.repostee{
+  margin: 0 1rem;
+  cursor:pointer;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+}
 .body{
   padding: 0.5rem;
   margin-bottom: 0.5rem;
