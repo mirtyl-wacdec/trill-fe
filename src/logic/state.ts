@@ -3,8 +3,9 @@ import { URL, bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
 import type { ListType, Node, FullNode, ID, Ship, Graph, SubscriptionStatus, FollowAttempt, Key, Policy, Whitelist, Blacklist, EngagementDisplay, Notifications } from "./types";
-import { scryHark, scryNodeFlat, scryNodeFull, subscribeFeed, subscribeHark } from "./actions";
+import { scryFollowers, scryFollowing, scryFollows, scryHark, scryList, scryLists, scryNodeFlat, scryNodeFull, scryTimeline, subscribeFeed, subscribeHark } from "./actions";
 import { NullIcon } from "../ui/Icons";
+import { buntList } from "./bunts";
 
 export interface LocalState {
   our: Ship;
@@ -22,13 +23,17 @@ export interface LocalState {
   bootstrap: () => Promise<void>;
   errorCount: number;
   init: () => void;
-  fans: Set<Ship>;
-  follows: Set<Ship>;
+  followers: Set<Ship>;
+  following: Set<Ship>;
   follow_attempts: FollowAttempt[];
   activeFeed: "timeline" | "notifications" | "not-follow" | "not-found" | Ship;
   activeGraph: Graph;
   activeThread: FullNode | null;
   lists: ListType[],
+  sup: ListType,
+  wex: ListType,
+  setSup: () => void;
+  setWex: () => void;
   scryFeed: (feed: string) => Promise<void>;
   scryThread: (host: Ship, id: ID) => Promise<void>;
   scryFollows: () => Promise<void>;
@@ -61,15 +66,15 @@ export interface LocalState {
   browsingList: ListType | null;
   setBrowsingList: (l: ListType) => void;
 };
-type PlayAreaOptions = "replyTo" 
-| "quoteTo" 
-| "reactingTo" 
-| "engagement" 
-| "userPreview" 
-| "lists" 
-| "listEdit"
-| "editProfile"
-| ""
+type PlayAreaOptions = "replyTo"
+  | "quoteTo"
+  | "reactingTo"
+  | "engagement"
+  | "userPreview"
+  | "lists"
+  | "listEdit"
+  | "editProfile"
+  | ""
 
 function wait(ms: number) {
   return new Promise((resolve, reject) => {
@@ -81,8 +86,8 @@ type LocalStateZus = LocalState & State;
 const useLocalState = create<LocalStateZus>((set, get) => ({
   our: "~" + (window as any).ship,
   theme: "auto",
-  fans: new Set([]),
-  follows: new Set([]),
+  followers: new Set([]),
+  following: new Set([]),
   lists: [],
   dark: false,
   mobile: false,
@@ -164,8 +169,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     }
   },
   scryTimeline: async () => {
-    const airlock = get().airlock;
-    const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
+    const res = await scryTimeline();
     set({
       activeGraph: res.timeline.timeline,
       activeFeed: "timeline",
@@ -173,8 +177,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     });
   },
   scryFollows: async () => {
-    const airlock = get().airlock;
-    const res = await airlock.scry({ app: "feed-store", path: "/following" });
+    const res = await scryFollows();
     // set({
     //   fans: res["feed-scry"]["follows"],
     //   follows: res["feed-scry"]["fans"],
@@ -182,15 +185,14 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     set({ follows: new Set(res["following"]) });
   },
   scryLists: async () => {
-    const airlock = get().airlock;
-    const res = await airlock.scry({ app: "list-store", path: "/lists" });
+    const res = await scryLists();
     console.log(res, "scried lists");
     set({ lists: res.lists });
   },
   scryList: async (s) => {
     const airlock = get().airlock;
     try {
-      const res = await airlock.scry({ app: "list-store", path: `/listfeed/${s}` });
+      const res = await scryList(s);
       console.log(res, "scried list");
       set({
         activeGraph: res.aggregate.feed,
@@ -202,6 +204,40 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
         activeGraph: {}
       })
     }
+  },
+  sup: buntList,
+  wex: buntList,
+  setSup: async () => {
+    const m = await scryFollowers()
+    set({
+      followers: new Set(m),
+      sup: {
+        name: "Followers",
+        symbol: "followers",
+        description: "",
+        members: m.map(mm => {
+          return { service: "urbit", username: mm }
+        }),
+        image: "",
+        public: true
+      }
+    })
+  },
+  setWex: async () => {
+    const m = await scryFollowing()
+    set({
+      following: new Set(m),
+      wex: {
+        name: "Following",
+        symbol: "following",
+        description: "",
+        members: m.map(mm => {
+          return { service: "urbit", username: mm }
+        }),
+        image: "",
+        public: true
+      }
+    })
   },
   subscribeFeed: async () => {
     const reducer = (data: any) => {
@@ -217,15 +253,15 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
           else if (activeFeed === "thread")
             liveUpdateThread(data, activeThread, set)
         }
-        // else if ("react-added" in data["feed-post-update"]) {
-
-        // }
       } else if ("feed-engagement-update" in data) {
         if ("post-quoted" in data["feed-engagement-update"])
-        console.log(data["feed-engagement-update"])
-        if ("post-shared" in data["feed-engagement-update"])
-        console.log(data["feed-engagement-update"])
+          console.log(data["feed-engagement-update"])
+        else if ("post-shared" in data["feed-engagement-update"])
+          console.log(data["feed-engagement-update"])
       }
+      // else if ("react-added" in data["feed-post-update"]) {
+
+      // }
       // if (activeFeed === data.ship )
     };
     subscribeFeed(reducer);

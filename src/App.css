@@ -929,3 +929,17 @@ a.list-link{
 .bad-quote{
   padding: 1rem;
 }
+#edit-list label{
+  display: block;
+  margin: 0.5rem 0;
+}
+#edit-list input[type="text"]{
+  display: block;
+  width: 100%;
+  height: 30px;
+}
+#edit-list #destroy-list{
+  display: block;
+  margin: 2rem 0;
+  background-color: red;
+}

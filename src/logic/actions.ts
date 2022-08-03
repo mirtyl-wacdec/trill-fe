@@ -25,6 +25,38 @@ export async function scryDMs() {
   return res
 }
 
+
+export async function scryTimeline(){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
+  return res
+}
+
+export async function scryFollows(){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "feed-store", path: "/following" });
+  return res
+}
+export async function scryFollowers(){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "feed-push-hook", path: "/sup" });
+  return res
+}
+export async function scryFollowing(){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "feed-pull-hook", path: "/wex" });
+  return res
+}
+export async function scryLists(){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "list-store", path: "/lists" });
+  return res
+}
+export async function scryList(s: string){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "list-store", path: `/listfeed/${s}` });
+  return res
+}
 export async function scryDM(patp: Ship) {
   const { airlock, our } = useLocalState.getState()
   const dec = patp2dec(patp);
@@ -278,7 +310,12 @@ export async function editList(symbol: string, l: ListEdit){
   const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
   return await airlock.poke(pokeObj);
 }
-
+export async function destroyList(symbol: string){
+  const { airlock } = useLocalState.getState()
+  const json = { destroy: symbol };
+  const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
+  return await airlock.poke(pokeObj);
+}
 // misc
 export async function rebuildTimeline() {
   const { airlock } = useLocalState.getState()

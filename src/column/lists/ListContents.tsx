@@ -6,16 +6,20 @@ import Sigil from "../../ui/Sigil";
 function ListContents() {
   const location = useLocation();
   const listName = location.pathname.split("/")[3];
-  const { lists, setBrowsingList } = useLocalState();
+  const { sup, wex, lists, setBrowsingList } = useLocalState();
   const [list, setList] = useState<any>({});
   console.log(location.pathname.split("/"), "lists");
   console.log(lists, "lists");
   useEffect(() => {
-    const muhlist = lists.find((l) => l.symbol === listName);
-    console.log(muhlist, "ml")
-    if (muhlist) {
-      setList(muhlist);
-      setBrowsingList(muhlist)
+    if (listName === "followers") setList(sup);
+    else if (listName === "following") setList(wex);
+    else {
+      const muhlist = lists.find((l) => l.symbol === listName);
+      console.log(muhlist, "ml");
+      if (muhlist) {
+        setList(muhlist);
+        setBrowsingList(muhlist);
+      }
     }
   }, [location, lists]);
   return (
@@ -24,26 +28,26 @@ function ListContents() {
         <h4 id="column-title">List - {listName}</h4>
       </header>
       <div className="lists">
-        {(!list.members || list.members.length === 0) &&
-        <p>Empty list</p> }
-        {list?.members && list.members.map((l: any) => {
-          if (l.service === "urbit")
-            return (
-              <ListMember
-                key={JSON.stringify(l)}
-                name={l.username}
-                service={l.service}
-              />
-            );
-          else
-            return (
-              <ExternalListMember
-                key={JSON.stringify(l)}
-                name={l.username}
-                service={l.service}
-              />
-            );
-        })}
+        {(!list.members || list.members.length === 0) && <p>Empty list</p>}
+        {list?.members &&
+          list.members.map((l: any) => {
+            if (l.service === "urbit")
+              return (
+                <ListMember
+                  key={JSON.stringify(l)}
+                  name={l.username}
+                  service={l.service}
+                />
+              );
+            else
+              return (
+                <ExternalListMember
+                  key={JSON.stringify(l)}
+                  name={l.username}
+                  service={l.service}
+                />
+              );
+          })}
       </div>
     </div>
   );
@@ -56,9 +60,7 @@ interface LMProps {
   service: string;
 }
 function ListMember({ name }: LMProps) {
-  function promptDelete(){
-
-  }
+  function promptDelete() {}
   const { setPreview } = useLocalState();
   return (
     <div onClick={() => setPreview(name)} className="list-member">

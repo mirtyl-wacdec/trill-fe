@@ -6,8 +6,10 @@ import useLocalState from "../logic/state";
 import PlayComposer from "./PlayComposer";
 import { useLocation } from "react-router-dom";
 import ListSubMenu from "./ListSubMenu";
-import { addReact, editList } from "../logic/actions";
+import { addReact, destroyList, editList } from "../logic/actions";
 import { stringToSymbol } from "../logic/utils";
+import { useNavigate } from "react-router-dom";
+
 
 export default function () {
   const loc = useLocation();
@@ -26,7 +28,8 @@ export default function () {
     reactingTo,
     engagement,
     resetPlayArea,
-    setPlayArea
+    setPlayArea,
+    browsingList
   } = useLocalState();
   console.log(playingWith, "playing with")
   return (
@@ -43,7 +46,7 @@ export default function () {
       )}
       {playingWith === "reactingTo" && <ReactionBox node={reactingTo} />}
       {playingWith === "lists" && <ListSubMenu />}
-      {playingWith === "listEdit" && <EditList />}
+      {playingWith === "listEdit" && browsingList && <EditList />}
       {playingWith === "engagement" && <Engagement />}
     </div>
   );
@@ -144,6 +147,7 @@ function Engagement() {
 }
 
 function EditList() {
+  let navigate = useNavigate();
   const { browsingList, scryLists } = useLocalState();
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -168,28 +172,39 @@ function EditList() {
     const res = await editList(browsingList.symbol, l);
     if (res) scryLists();
   }
+  async function destroy(){
+    const res = await destroyList(browsingList.symbol)
+    if (res) {
+      await scryLists();
+      navigate("/lists")
+    }
+  }
   return (
     <div id="edit-list">
       <h3>Edit List</h3>
-      <label>Name:</label>
+      <label>Name:
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
       />
-      <label>Description:</label>
+      </label>
+      <label>Description:
       <input
         type="text"
         value={desc}
         onChange={(e) => setDesc(e.currentTarget.value)}
       />
-      <label>Public ? </label>
+      </label>
+      <label>Public ? 
       <input
         type="checkbox"
         checked={pub}
         onChange={(e) => setPublic(e.currentTarget.checked)}
       />
+      </label>
       <button onClick={save}>Save</button>
+      <button id="destroy-list" onClick={destroy}>Destroy</button>
     </div>
   );
 }
