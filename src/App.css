@@ -44,7 +44,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   display: flex;
 }
 #leftbar{
-  width: 20%;
+  min-width: 20%;
   margin: 1rem;
 }
 
@@ -237,7 +237,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   border-top: 1px solid grey;
 }
 #main-column{
-  width:65%;
+  flex-grow: 1;
   overflow-y: scroll;
   scrollbar-width: none;
   margin: 1rem;
@@ -406,6 +406,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   display: flex;
   position: relative;
   height: 24px;
+  margin: 1rem 0 0.5rem 20%;
 }
 /* nerf markdown */
 .post h1, .post h2, .post h3, .post h4, .post h5, .post h6{
@@ -608,7 +609,8 @@ footer .icon span:hover{
 }
 /* play-area */
 #play-column{
-  width: 25%;
+  min-width: 25%;
+  max-width: 25%;
   margin: 1rem;
   margin-right: 2rem;
   display: flex;
@@ -664,6 +666,8 @@ footer .icon span:hover{
   color: var(--heading-color);
   font-weight: var(--heading-weight);
   font-size: 0.8rem;
+  max-width: 100%;
+  word-wrap: break-word;
 }
 .user-preview .user-data{
   padding: 1rem 0;

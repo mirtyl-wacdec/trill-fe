@@ -12,7 +12,8 @@ export async function scryNodeFlat(host: Ship, id: ID): Promise<any> {
   return res
 }
 export async function scryNodeFull(host: Ship, id: ID): Promise<any> {
-  const { airlock, our } = useLocalState.getState()
+  const { airlock } = useLocalState.getState()
+  console.log(id, "id")
   const path = `/full-node/${host}/${id}`;
   const res = await airlock.scry({ app: "feed-store", path: path });
   return res

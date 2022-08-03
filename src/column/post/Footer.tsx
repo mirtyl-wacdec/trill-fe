@@ -6,13 +6,13 @@ import repost from "../../icons/repost.svg";
 import emoji from "../../icons/emoji.svg";
 import { useState } from "react";
 import useLocalState from "../../logic/state";
-import { addPost } from "../../logic/actions";
+import { addPost, scryNodeFull } from "../../logic/actions";
 interface FooterProps {
   node: Node;
 }
 function Footer({ node }: FooterProps) {
   const [reacts, setReacts] = useState(false);
-  const { setReply, setQuote, setReacting, setEngagement} = useLocalState();
+  const { setReply, setQuote, setReacting, setEngagement } = useLocalState();
   const doReply = () => setReply(node);
   const doQuote = () => setQuote(node);
   const childrenCount = node.children
@@ -35,23 +35,37 @@ function Footer({ node }: FooterProps) {
     const r = await addPost(c, undefined);
     if (r) console.log("posted");
   }
-  function doReact(){
-    setReacting(node)
+  function doReact() {
+    setReacting(node);
   }
-  function showReplyCount(){
-    const authors = Object.keys(node.children).map(i => node.children[i].post.author);
-    setEngagement({type: "replies", ships: authors}, node);
+  function showReplyCount() {
+    console.log(node.children);
+    if (node.children[0]) fetchAndShow(); // FlatNode
+    else {
+      const authors = Object.keys(node.children).map(
+        (i) => node.children[i].post.author
+      );
+      setEngagement({ type: "replies", ships: authors }, node);
+    }
   }
-  function showRepostCount(){
-    console.log(node.engagement)
-    const ships = node.engagement.shared.map(entry => entry.host)
-    setEngagement({type: "reposts", ships:ships}, node);
+  async function fetchAndShow(){
+    let authors = [];
+    for (let i of node.children as string[]){
+      const res = await scryNodeFull(node.post.host, i);
+      authors.push(res["full-node-scry"]?.post?.author || "deleter")
+    }
+    setEngagement({ type: "replies", ships: authors }, node);
   }
-  function showQuoteCount(){
-    setEngagement({type: "quotes", quotes: node.engagement.quoted}, node);
+  function showRepostCount() {
+    console.log(node.engagement);
+    const ships = node.engagement.shared.map((entry) => entry.host);
+    setEngagement({ type: "reposts", ships: ships }, node);
   }
-  function showReactCount(){
-    setEngagement({type: "reacts", reacts: node.engagement.reacts}, node);
+  function showQuoteCount() {
+    setEngagement({ type: "quotes", quotes: node.engagement.quoted }, node);
+  }
+  function showReactCount() {
+    setEngagement({ type: "reacts", reacts: node.engagement.reacts }, node);
   }
 
   // onClick={() => setReacts(!reacts)
@@ -79,7 +93,7 @@ function Footer({ node }: FooterProps) {
         </span>
         <img onClick={doQuote} src={quote} alt="" />
       </div>
-      <div  className="icon">
+      <div className="icon">
         <span onClick={showReactCount} className="reaction-count">
           {Object.keys(node.engagement.reacts).length
             ? Object.keys(node.engagement.reacts).length
