@@ -117,9 +117,9 @@ export default function ({ patp }: UserPreviewProps) {
           <p onClick={openFeed} className="clickable patp-string">
             {patp}
           </p>
-          {/* <p className="follows-you">
-            {fans.has(patp) ? "Follows you" : "Doesn't follow you"}
-          </p> */}
+          <p className="follows-you">
+            {followers.has(patp) ? "Follows you" : "Doesn't follow you"}
+          </p>
         </div>
         {loading && (
           <div className="spinner">

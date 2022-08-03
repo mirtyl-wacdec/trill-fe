@@ -678,7 +678,7 @@ footer .icon span:hover{
 }
 .user-preview .follows-you{
   font-size: 0.8rem;
-  font-weight: var(--heading-weight);
+  font-weight: 200 !important;
 }
 
 /* reaction box at play area */
