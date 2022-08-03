@@ -16,7 +16,7 @@ interface UserPreviewProps {
 }
 export default function ({ patp }: UserPreviewProps) {
   let navigate = useNavigate();
-  const { lists, scryFollows, fans, follows, follow_attempts } =
+  const { lists, scryFollows, followers, following, follow_attempts } =
     useLocalState();
   const [loading, setLoading] = useState(false);
   const [bio, setBio] = useState("");
@@ -96,7 +96,7 @@ export default function ({ patp }: UserPreviewProps) {
     e.currentTarget.innerText = "Following";
   }
   function openFeed() {
-    if (follows.has(patp)) navigate(`./${patp}`);
+    if (following.has(patp)) navigate(`./${patp}`);
   }
   function showListInterface() {
     navigate(`/lists/${patp}`);
@@ -126,7 +126,7 @@ export default function ({ patp }: UserPreviewProps) {
             <Spinner size={25} />
           </div>
         )}
-        {follows.has(patp) ? (
+        {following.has(patp) ? (
           <button
             onClick={startUnfollow}
             onMouseOver={promptUnfollow}

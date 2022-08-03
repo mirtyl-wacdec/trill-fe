@@ -182,7 +182,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     //   fans: res["feed-scry"]["follows"],
     //   follows: res["feed-scry"]["fans"],
     // });
-    set({ follows: new Set(res["following"]) });
+    set({ following: new Set(res["following"]) });
   },
   scryLists: async () => {
     const res = await scryLists();

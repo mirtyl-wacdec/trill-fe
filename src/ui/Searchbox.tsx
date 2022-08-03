@@ -9,7 +9,7 @@ import {useLocation} from "react-router-dom";
 export default function () {
   let loc = useLocation();
   useEffect(()=> setInput(""), [loc])
-  const { our, scryFollows, follows, setPreview } = useLocalState();
+  const { our, scryFollows, following, setPreview } = useLocalState();
   const [candidates, setCandidates] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [selected, setSelected] = useState("");
@@ -25,11 +25,11 @@ export default function () {
   }
   async function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setInput(e.target.value);
-    const following = Array.from(follows).filter(f => e.target.value !== "" && f.includes(e.target.value));
+    const f = Array.from(following).filter(f => e.target.value !== "" && f.includes(e.target.value));
     console.log(e.target.value, "value");
-    console.log(following, "following");
+    console.log(f, "following");
     const valid = isValidPatp(e.target.value) ? [e.target.value] : []
-    setCandidates([... new Set([...following, ...valid])]);
+    setCandidates([... new Set([...f, ...valid])]);
     setPreview("");
   }
   return (
