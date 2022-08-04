@@ -210,3 +210,6 @@ export interface MentionNotification {
     pid: PID, ship: Ship, time: number
   }
 }
+export interface UnreadDisplay{
+  [s: Ship] : string[]
+}

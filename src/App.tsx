@@ -32,7 +32,11 @@ function App() {
     subscribeFeed,
     subscribeHark,
     subscribeJoins,
-    resetPlayArea
+    resetPlayArea,
+    setSup,
+    setWex,
+    followers,
+    following
   } = useLocalState();
   useEffect(() => {
     init(),
@@ -40,8 +44,12 @@ function App() {
     scryLists();
     subscribeFeed();
     subscribeHark();
+    setSup();
+    setWex();
     // scryFollows();
   }, []);
+  console.log(following, "fing")
+  console.log(followers, "fers")
   return (
     <div className="App">
       <BrowserRouter basename="/apps/trill/">

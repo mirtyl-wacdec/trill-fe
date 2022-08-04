@@ -13,7 +13,6 @@ export async function scryNodeFlat(host: Ship, id: ID): Promise<any> {
 }
 export async function scryNodeFull(host: Ship, id: ID): Promise<any> {
   const { airlock } = useLocalState.getState()
-  console.log(id, "id")
   const path = `/full-node/${host}/${id}`;
   const res = await airlock.scry({ app: "feed-store", path: path });
   return res
@@ -30,6 +29,11 @@ export async function scryDMs() {
 export async function scryTimeline(){
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
+  return res
+}
+export async function scryFeed(s: Ship){
+  const { airlock } = useLocalState.getState()
+  const res = await airlock.scry({ app: "feed-store", path: `/feed/${s}` });
   return res
 }
 

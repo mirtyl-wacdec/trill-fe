@@ -9,7 +9,7 @@ import {useLocation} from "react-router-dom";
 export default function () {
   let loc = useLocation();
   useEffect(()=> setInput(""), [loc])
-  const { our, scryFollows, following, setPreview } = useLocalState();
+  const { our, following, setPreview } = useLocalState();
   const [candidates, setCandidates] = useState<string[]>([]);
   const [input, setInput] = useState("");
   const [selected, setSelected] = useState("");
@@ -21,7 +21,6 @@ export default function () {
   function searchP(e: React.FormEvent<HTMLFormElement>) {}
   async function handleFocus(){
     setInput("~")
-    await scryFollows(); // sets the global variable 'follows'
   }
   async function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setInput(e.target.value);

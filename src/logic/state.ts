@@ -3,7 +3,7 @@ import { URL, bootstrapApi } from "./api";
 import produce from "immer";
 import Urbit from "@urbit/http-api";
 import type { ListType, Node, FullNode, ID, Ship, Graph, SubscriptionStatus, FollowAttempt, Key, Policy, Whitelist, Blacklist, EngagementDisplay, Notifications } from "./types";
-import { scryFollowers, scryFollowing, scryFollows, scryHark, scryList, scryLists, scryNodeFlat, scryNodeFull, scryTimeline, subscribeFeed, subscribeHark } from "./actions";
+import { scryFeed, scryFollowers, scryFollowing, scryFollows, scryHark, scryList, scryLists, scryNodeFlat, scryNodeFull, scryTimeline, subscribeFeed, subscribeHark } from "./actions";
 import { NullIcon } from "../ui/Icons";
 import { buntList } from "./bunts";
 
@@ -138,9 +138,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   activeGraph: {},
   activeThread: null,
   scryFeed: async (feed: Ship) => {
-    const airlock = get().airlock;
-    const path = `/feed/${feed}`;
-    const res = await airlock.scry({ app: "feed-store", path: path });
+    const res = await scryFeed(feed);
     if ("feed-scry" in res)
       set({
         activeGraph: res["feed-scry"]["feed"],
@@ -177,7 +175,8 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     });
   },
   scryFollows: async () => {
-    const res = await scryFollows();
+    const res = await scryFollowers();
+    const res2 = await scryFollowing()
     // set({
     //   fans: res["feed-scry"]["follows"],
     //   follows: res["feed-scry"]["fans"],
@@ -254,15 +253,31 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
             liveUpdateThread(data, activeThread, set)
         }
       } else if ("feed-engagement-update" in data) {
-        if ("post-quoted" in data["feed-engagement-update"])
-          console.log(data["feed-engagement-update"])
-        else if ("post-shared" in data["feed-engagement-update"])
-          console.log(data["feed-engagement-update"])
+        if ("post-quoted" in data["feed-engagement-update"]) {
+          const quote = data["feed-engagement-update"]["post-quoted"]
+          if (activeThread && activeThread.id === quote.ab.id && activeThread.post.host === quote.ab.host) {
+            activeThread.engagement.quoted = [...activeThread.engagement.quoted, quote.ship]
+            set({ activeThread: activeThread })
+          }
+          else if (activeGraph && activeGraph[quote.ab.id]) {
+            const node = activeGraph[quote.ab.id]
+            node.engagement.quoted = [...node.engagement.quoted, quote.ship]
+            set({ activeGraph: activeGraph })
+          }
+        }
+        else if ("post-reposted" in data["feed-engagement-update"]) {
+          const share = data["feed-engagement-update"]["post-reposted"]
+          if (activeThread && activeThread.id === share.ab.id && activeThread.post.host === share.ab.host) {
+            activeThread.engagement.shared = [...activeThread.engagement.shared, share.ship]
+            set({ activeThread: activeThread })
+          }
+          else if (activeGraph && activeGraph[share.ab.id]) {
+            const node = activeGraph[share.ab.id]
+            node.engagement.shared = [...node.engagement.shared, share.ship]
+            set({ activeGraph: activeGraph })
+          }
+        }
       }
-      // else if ("react-added" in data["feed-post-update"]) {
-
-      // }
-      // if (activeFeed === data.ship )
     };
     subscribeFeed(reducer);
   },
@@ -284,7 +299,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   subscribeJoins: async () => {
     const airlock = get().airlock;
     const reducer = (data: any) => {
-      console.log(data, "joins");
       if ("followed" in data["trill-follow-update"]) {
         const patp = data["trill-follow-update"].followed;
         const fa = { ship: patp, timestamp: Date.now() };
@@ -302,14 +316,11 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
       err: (err: any, id: string) => console.log(err, "error on joins subscription"),
       quit: (data: any) => console.log(data, "joins subscription kicked")
     });
-    console.log(res, "subscribed to joins");
-    console.log(airlock, "airlock")
   },
   follow_attempts: [],
   scryPolicy: async () => {
     const airlock = get().airlock;
     const res = await airlock.scry({ app: "feed-store", path: "/policy" });
-    console.log(res, "scried policy");
     const policy = res.policy;
     set({ policy: policy });
   },

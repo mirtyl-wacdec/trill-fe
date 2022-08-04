@@ -947,3 +947,9 @@ a.list-link{
   margin: 2rem 0;
   background-color: red;
 }
+.comet-icon{
+  width: 30px;
+}
+.unread .author{
+  flex-grow: 1;
+}
