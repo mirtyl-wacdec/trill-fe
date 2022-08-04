@@ -1,5 +1,6 @@
 import { sigil, reactRenderer } from '@tlon/sigil-js'
 import {isValidPatp} from "../logic/ob/co";
+import comet from "../icons/comet.svg"
 
 interface SigilProps{
 patp: string;
@@ -12,11 +13,22 @@ const Sigil = (props: SigilProps) => {
       X
     </div>
   )
-  else if (props.patp.length > 15)
+  else if (props.patp.length > 28)
   return (
-    <div className="sigil bad-sigil">
-      XX
-    </div>
+      <img className="comet-icon" src={comet} alt="" />
+  )
+  else if (props.patp.length > 15) // moons
+  return(
+    <>
+    {
+      sigil({
+        patp: props.patp.substring(props.patp.length - 13),
+        renderer: reactRenderer,
+        size: props.size,
+        colors: ['grey', 'white'],
+      })
+    }
+    </>
   )
  else return (
    <>
