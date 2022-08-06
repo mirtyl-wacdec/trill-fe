@@ -8,14 +8,11 @@ function ListContents() {
   const listName = location.pathname.split("/")[3];
   const { sup, wex, lists, setBrowsingList } = useLocalState();
   const [list, setList] = useState<any>({});
-  console.log(location.pathname.split("/"), "lists");
-  console.log(lists, "lists");
   useEffect(() => {
     if (listName === "followers") setList(sup);
     else if (listName === "following") setList(wex);
     else {
       const muhlist = lists.find((l) => l.symbol === listName);
-      console.log(muhlist, "ml");
       if (muhlist) {
         setList(muhlist);
         setBrowsingList(muhlist);

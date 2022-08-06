@@ -153,7 +153,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   scryThread: async (host: Ship, id: ID) => {
     const res = await scryNodeFull(host, id);
-    console.log(res, "scried thread")
     // TODO error handling 
     if ("full-node-scry" in res) {
       set({
@@ -185,14 +184,12 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   scryLists: async () => {
     const res = await scryLists();
-    console.log(res, "scried lists");
     set({ lists: res.lists });
   },
   scryList: async (s) => {
     const airlock = get().airlock;
     try {
       const res = await scryList(s);
-      console.log(res, "scried list");
       set({
         activeGraph: res.aggregate.feed,
         activeFeed: "list",
@@ -241,8 +238,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   subscribeFeed: async () => {
     const reducer = (data: any) => {
       const { activeThread, activeFeed, activeGraph } = get();
-      console.log(activeFeed, "af");
-      console.log(data, "data");
       if ("feed-post-update" in data) {
         if ("thread-updated" in data["feed-post-update"]) {
           if (data["feed-post-update"]["thread-updated"]["host"] === activeFeed)

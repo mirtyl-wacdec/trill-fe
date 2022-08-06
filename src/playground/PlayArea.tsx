@@ -15,7 +15,6 @@ export default function () {
   const loc = useLocation();
   useEffect(() => {
     const split = loc.pathname.split("/");
-    console.log(split, "esplit");
     if (split[1] === "lists" && split.length === 2) setPlayArea("lists")
     else if (split[1] === "lists" && split[2] === "members") setPlayArea("listEdit")
     else if (!split.slice(2).includes(preview)) resetPlayArea();
@@ -31,7 +30,6 @@ export default function () {
     setPlayArea,
     browsingList
   } = useLocalState();
-  console.log(playingWith, "playing with")
   return (
     <div id="play-column">
       <header>
@@ -98,8 +96,7 @@ function ReactionBox({ node }: RBProps) {
 }
 
 function Engagement() {
-  const { engagement, highlighted } = useLocalState();
-  console.log(engagement, "eng");
+  const { engagement } = useLocalState();
   return (
     <div className="engagement">
       {engagement.type === "replies" && (
@@ -152,7 +149,6 @@ function EditList() {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [pub, setPublic] = useState(true);
-  console.log(browsingList, "bl");
   useEffect(() => {
     if (browsingList) {
       setName(browsingList.name);

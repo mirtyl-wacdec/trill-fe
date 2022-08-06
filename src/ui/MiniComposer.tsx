@@ -68,7 +68,6 @@ export default function (pr: ComposerProps) {
   }
   async function poastReply(c: Content[]){
     const r = await addPost(c, pr.replyTo);
-    console.log(r, "r");
     if (r) reset();
   }
   async function poastQuote(c: Content[]){
@@ -82,7 +81,6 @@ export default function (pr: ComposerProps) {
     }
     const contents = [ref, ...c];
     const r = await addPost(contents, undefined);
-    console.log(r, "r");
     if (r) reset();
   }
   function reset() {
@@ -94,8 +92,6 @@ export default function (pr: ComposerProps) {
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
       setFiles(d.clipboardData.files);
-      console.log(d, "d");
-      console.log(files, "files");
       // upload_file();
     } else {
       return;
@@ -185,7 +181,6 @@ interface QuoteProps {
   q: Node;
 }
 function Quote({ q }: QuoteProps) {
-  console.log(q, "q");
   return (
     <div className="quote-in-composer">
       <p className="quote-metadata">{q.post.author}</p>

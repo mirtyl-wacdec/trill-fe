@@ -59,7 +59,6 @@ interface ListProps {
 
 function SmallList({ list, patp, addingToList, add }: ListProps) {
   useEffect(() => {
-    console.log(list.members.map((l) => l.username).includes(patp), `belongs to ${list.symbol}`)
     if (list.members.map((l) => l.username).includes(patp)) {
       add(a => [...a, list.symbol]);
     }

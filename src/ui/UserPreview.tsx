@@ -27,10 +27,7 @@ export default function ({ patp }: UserPreviewProps) {
     setError(false);
     setBio("");
     fetchContact(patp)
-      .then((res) => {
-        setBio(res["contact-update"].add.contact.bio);
-        console.log(res, "contact");
-      })
+      .then((res) => setBio(res["contact-update"].add.contact.bio))
       .catch((err) => {
         setBio("");
       });

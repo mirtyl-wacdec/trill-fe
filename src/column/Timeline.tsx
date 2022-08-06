@@ -9,8 +9,6 @@ function Home() {
   useEffect(() => {
     scryTimeline();
   }, []);
-  console.log(activeFeed, "af");
-  console.log(activeGraph, "ag");
   async function rebuild() {
     const r = await rebuildTimeline();
     if (r) scryTimeline();

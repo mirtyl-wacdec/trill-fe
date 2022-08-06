@@ -119,7 +119,6 @@ export async function unsub(sub: number) {
 
 export async function subscribeFeed(handler: Handler){
   const { airlock } = useLocalState.getState();
-  console.log(airlock, "airlock")
   const res = await airlock.subscribe({
     app: "feed-store",
     path: "/frontend",
@@ -174,7 +173,6 @@ export async function addReact(ship: Ship, id: ID, reaction: string) {
       },
     },
   };
-  console.log(json, "poke sent");
   return airlock.poke({
     app: "feed-push-hook",
     mark: "trill-post-action",
@@ -192,7 +190,6 @@ export async function delReact(ship: Ship, id: ID) {
       },
     },
   };
-  console.log(json, "poke sent");
   return airlock.poke({
     app: "feed-push-hook",
     mark: "trill-post-action",
@@ -225,11 +222,9 @@ export async function fetchContact(patp: string) {
   return airlock.scry({ app: "contact-store", path: `/contact/${patp}` })
 }
 export async function follow(ship: Ship, fn: Function) {
-  const { airlock, our } = useLocalState.getState()
-  console.log(airlock, "airlock of follow")
+  const { airlock } = useLocalState.getState()
   let sub: number;
   const handleData = (data: any) => {
-    console.log(data, "data handled by /join subscription")
     fn(data)
   };
   const res = await airlock.subscribe({
@@ -335,7 +330,6 @@ export async function postDM(recipient: Ship, text: string) {
   const { airlock, our } = useLocalState.getState()
   const contents = tokenize(text);
   const pokeObj = buildDM(our, recipient, contents)
-  console.log(pokeObj, "pokeobj")
   return await airlock.poke(pokeObj)
 }
 
@@ -351,7 +345,6 @@ export async function wipeNotes(){
 export async function dismissNote(n: Notification){
   const { airlock } = useLocalState.getState()
   const json = {dismiss: n};
-  console.log(json, "closing note")
   const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
   return await airlock.poke(pokeObj)
 }

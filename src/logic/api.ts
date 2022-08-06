@@ -11,7 +11,6 @@ export const URL = "";
 export function bootstrapApi(): Urbit {
   const airlock = new Urbit(URL);
   airlock.ship = (window as any).ship;
-  console.log(window, "window")
   airlock.desk = "trill";
   airlock.verbose = true;
   airlock.onError = (e) => {

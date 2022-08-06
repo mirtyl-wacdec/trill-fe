@@ -7,14 +7,9 @@ import { useParams } from "react-router-dom";
 export default function () {
   const { scryList, activeGraph, activeFeed } = useLocalState();
   const params = useParams();
-  console.log(params, "params")
-  console.log(activeFeed, "af");
   useEffect(() => {
-    if (params.listname === "followers") console.log("oops")
-    else if (params.listmame === "following") console.log("oopsy")
-    else{console.log("fetching list")
+    if (params.listname !== "followers" &&params.listmame !== "following") 
     scryList(params.listname);
-  }
   }, [params.listname]);
   if (activeFeed === "wronglist")
   return(

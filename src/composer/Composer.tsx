@@ -65,8 +65,6 @@ function Composer({ quit }: ComposerProps) {
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
       setFiles(d.clipboardData.files);
-      console.log(d, "d")
-      console.log(files, "files")
       // upload_file();
     } else {
       return;

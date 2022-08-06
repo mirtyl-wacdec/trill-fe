@@ -26,7 +26,6 @@ export function tokenize(input: string): Content[] {
 }
 function extract_text(data: tokenizerData): Content[] {
   const uids = data[1].map((tuple) => tuple[0].replace(/;/g, ""));
-  console.log(uids);
   const ret = data[0].split(";;").map((section) => {
     if (uids.includes(section)) {
       const r = data[1].find((tagged) => tagged[0] === `;;${section};;`);
@@ -174,7 +173,6 @@ export function stringToSymbol(str: string) {
 export function buildDM(author: Ship, recipient: Ship, contents: Content[]) {
   const node: any = {};
   const point = patp2dec(recipient);
-  console.log(point, "point")
   const index = `/${point}/${makeIndex()}`;
   node[index] = {
     children: null,

@@ -8,8 +8,6 @@ import FollowPrompt from "../following/FollowPrompt";
 export default function () {
   const { scryFeed, activeGraph, activeFeed } = useLocalState();
   const { username } = useParams();
-  console.log(activeFeed, "af");
-  console.log(activeGraph, "ag")
   useEffect(() => {
     scryFeed(("~" + username) as string);
   }, [username]);

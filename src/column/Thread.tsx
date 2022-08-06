@@ -16,7 +16,6 @@ function Thread() {
     const [_, host, id] = location.pathname.split("/");
     scryThread(host, id);
   }, [location]);
-  console.log(activeThread, "at")
   // useEffect(() => {
   //   if (activeThread?.children) {
   //     for (let child of Object.keys(activeThread.children)) {

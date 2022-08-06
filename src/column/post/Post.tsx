@@ -17,7 +17,6 @@ interface PostProps {
 function Post({ node, fake, rter, rtat }: PostProps) {
   const tombstoned = typeof node.post === "string";
   if (tombstoned) {
-    console.log(node, "deleted node");
     return (
       <div className="post deleted-post">
         <p>Deleted post</p>

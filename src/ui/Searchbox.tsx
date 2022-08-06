@@ -25,8 +25,6 @@ export default function () {
   async function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     setInput(e.target.value);
     const f = Array.from(following).filter(f => e.target.value !== "" && f.includes(e.target.value));
-    console.log(e.target.value, "value");
-    console.log(f, "following");
     const valid = isValidPatp(e.target.value) ? [e.target.value] : []
     setCandidates([... new Set([...f, ...valid])]);
     setPreview("");

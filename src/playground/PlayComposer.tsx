@@ -56,7 +56,6 @@ export default function (pr: ComposerProps) {
     const imgs = images.map((i) => {
       return { url: i };
     });
-    console.log(contents, "contents posted");
     const withMedia = [...contents, ...imgs];
     if (pr.interaction === "reply") poastReply(withMedia);
     else if (pr.interaction === "quote") poastQuote(withMedia);
@@ -64,7 +63,6 @@ export default function (pr: ComposerProps) {
   }
   async function poastReply(c: Content[]) {
     const r = await addPost(c, pr.node);
-    console.log(r, "r");
     if (r) reset();
   }
   async function poastQuote(c: Content[]) {
@@ -79,7 +77,6 @@ export default function (pr: ComposerProps) {
     };
     const contents = [...c, ref];
     const r = await addPost(contents, undefined);
-    console.log(r, "r");
     if (r) reset();
   }
   function reset() {
@@ -91,8 +88,6 @@ export default function (pr: ComposerProps) {
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
       setFiles(d.clipboardData.files);
-      console.log(d, "d");
-      console.log(files, "files");
       // upload_file();
     } else {
       return;
@@ -183,7 +178,6 @@ interface QuoteProps {
   q: Node;
 }
 function Quote({ q }: QuoteProps) {
-  console.log(q, "q");
   return (
     <div className="quote-in-composer">
       <p className="quote-metadata">{q.post.author}</p>

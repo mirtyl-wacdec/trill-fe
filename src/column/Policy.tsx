@@ -35,9 +35,7 @@ function Policy() {
       read: newRead,
       write: newWrite
     }
-    console.log(newPolicy, "np")
-    const sp = await setPolicy(newPolicy);
-    console.log(sp, "sp")
+    await setPolicy(newPolicy);
   }
 
 

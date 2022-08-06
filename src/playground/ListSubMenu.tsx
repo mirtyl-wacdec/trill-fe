@@ -11,7 +11,6 @@ function ListSubMenu() {
   function doCreate(){
     const s = stringToSymbol(input);
     createList(input, s, description, image).then(res => {
-      console.log(res, "created list")
       scryLists()
       setInput("");
       setDescription("");

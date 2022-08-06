@@ -33,13 +33,12 @@ function Footer({ node }: FooterProps) {
       },
     ];
     const r = await addPost(c, undefined);
-    if (r) console.log("posted");
+    if (r) ("posted");
   }
   function doReact() {
     setReacting(node);
   }
   function showReplyCount() {
-    console.log(node.children);
     if (node.children[0]) fetchAndShow(); // FlatNode
     else {
       const authors = Object.keys(node.children).map(
@@ -57,7 +56,6 @@ function Footer({ node }: FooterProps) {
     setEngagement({ type: "replies", ships: authors }, node);
   }
   function showRepostCount() {
-    console.log(node.engagement);
     const ships = node.engagement.shared.map((entry) => entry.host);
     setEngagement({ type: "reposts", ships: ships }, node);
   }
