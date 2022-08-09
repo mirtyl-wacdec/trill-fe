@@ -192,10 +192,19 @@ a,p,h1,h2,h3,h4,h5,h6{
   width: 100%;
   justify-content: space-between;
 }
+#play-column .composer-footer{
+  height: 30px;
+} 
+#play-column .composer-footer p{
+  margin: auto 0.5rem;
+}
 .composer-icons{
   display: flex;
-  width: 50%;
+  /* width: 50%; */
   justify-content: space-between;
+}
+.composer .post-button{
+  width: 3.2rem;
 }
 .reply-in-composer{
   border: 1px solid grey;
@@ -780,7 +789,7 @@ a.list-link{
 .sigil, .author{
   cursor: pointer;
 }
-#list-submenu .playmenu-title{
+.playmenu-title{
   justify-content: space-between;
 }
 #list-submenu input{
@@ -962,5 +971,43 @@ a.list-link{
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  
+}
+#edit-profile .input{
+  display: flex;
+  margin: 0.5rem 0;
+}
+#edit-profile label{
+  display: block;
+  width: 10rem;
+}
+#edit-profile input, #edit-profile textarea{
+  width: 100%;
+  padding: 0.3rem;
+}
+#edit-profile textarea{
+  resize: none;
+}
+#edit-profile{
+  padding: 1rem 0;
+}
+#edit-profile .metadata{
+    display: flex;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    height: 32px;
+}
+#edit-profile .sigil{
+  width: 32px;
+}
+#edit-profile .patp{
+  /* width: 50%; */
+  flex-grow: 1;
+}
+#edit-profile .metadata button{
+  height: 24px;
+  width: 70px;
+}
+#edit-profile .patp p{
+  margin: 0 0.5rem;
+  font-weight: 800;
 }

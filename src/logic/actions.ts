@@ -26,38 +26,38 @@ export async function scryDMs() {
 }
 
 
-export async function scryTimeline(){
+export async function scryTimeline() {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-store", path: "/timeline" });
   return res
 }
-export async function scryFeed(s: Ship){
+export async function scryFeed(s: Ship) {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-store", path: `/feed/${s}` });
   return res
 }
 
-export async function scryFollows(){
+export async function scryFollows() {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-store", path: "/following" });
   return res
 }
-export async function scryFollowers(){
+export async function scryFollowers() {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-push-hook", path: "/sup" });
   return res
 }
-export async function scryFollowing(){
+export async function scryFollowing() {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "feed-pull-hook", path: "/wex" });
   return res
 }
-export async function scryLists(){
+export async function scryLists() {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "list-store", path: "/lists" });
   return res
 }
-export async function scryList(s: string){
+export async function scryList(s: string) {
   const { airlock } = useLocalState.getState()
   const res = await airlock.scry({ app: "list-store", path: `/listfeed/${s}` });
   return res
@@ -72,9 +72,9 @@ export async function scryDM(patp: Ship) {
   return res
 }
 
-export async function scryGSNode(reference: LandscapePostReference){
+export async function scryGSNode(reference: LandscapePostReference) {
   const { airlock } = useLocalState.getState()
-  const [_, __, host, name ] = reference.graph.graph.split("/");
+  const [_, __, host, name] = reference.graph.graph.split("/");
   const index = reference.graph.index.replace("/", "");
   const dotted = index.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const path = `/graph/${host}/${name}/node/index/kith/${dotted}`;
@@ -82,14 +82,14 @@ export async function scryGSNode(reference: LandscapePostReference){
   return res;
 }
 
-export async function scryHark(){
+export async function scryHark() {
   const { airlock } = useLocalState.getState()
   const path = `/`;
   const res = await airlock.scry({ app: "feed-hark", path: path });
   return res
 }
 
-export async function scryChangelog(){
+export async function scryChangelog() {
   const { airlock } = useLocalState.getState()
   const path = `/graph/~mirtyl-wacdec/trill-4.363/node/siblings/newest/lone/1`;
   const res = await airlock.scry({ app: "graph-store", path: path });
@@ -117,7 +117,7 @@ export async function unsub(sub: number) {
   return res
 }
 
-export async function subscribeFeed(handler: Handler){
+export async function subscribeFeed(handler: Handler) {
   const { airlock } = useLocalState.getState();
   const res = await airlock.subscribe({
     app: "feed-store",
@@ -129,7 +129,7 @@ export async function subscribeFeed(handler: Handler){
   console.log(res, "subscribed to feed store");
 }
 
-export async function subscribeHark(handler: Handler){
+export async function subscribeHark(handler: Handler) {
   const { airlock } = useLocalState.getState();
   const res = await airlock.subscribe({
     app: "feed-hark",
@@ -250,14 +250,14 @@ export async function unfollow(ship: Ship) {
 export async function sendDM(ship: Ship) {
   const { airlock, our } = useLocalState.getState()
   const text = "Hi! I've been trying to follow you on Trill, the Urbit microblogging app. Do you have it? If not, go check it out at https://trill.com.";
-  const pokeObj = buildDM(our, ship, [{text}]);
+  const pokeObj = buildDM(our, ship, [{ text }]);
   const res = await airlock.poke(pokeObj);
   return res;
 }
 export async function begForInvite(ship: Ship) {
   const { airlock, our } = useLocalState.getState()
   const text = "Hi! I've been trying to follow you on Trill, but your account is locked. Can you not be a faggot please? Thank you.";
-  const pokeObj = buildDM(our, ship, [{text}]);
+  const pokeObj = buildDM(our, ship, [{ text }]);
   const res = await airlock.poke(pokeObj);
   return res;
 }
@@ -297,20 +297,22 @@ export async function saveToLists(user: string, symbols: string[], lists: ListTy
   return ress
 }
 
-export async function editList(symbol: string, l: ListEdit){
+export async function editList(symbol: string, l: ListEdit) {
   const { airlock } = useLocalState.getState()
-  const json = { "big-edit": {
-    symbol,
-    "new-symbol":l["new-symbol"],
-    "new-name": l["new-name"],
-    "new-desc": l["new-desc"],
-    "new-image":l["new-image"],
-    "new-public":l["new-public"],
-  } };
+  const json = {
+    "big-edit": {
+      symbol,
+      "new-symbol": l["new-symbol"],
+      "new-name": l["new-name"],
+      "new-desc": l["new-desc"],
+      "new-image": l["new-image"],
+      "new-public": l["new-public"],
+    }
+  };
   const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
   return await airlock.poke(pokeObj);
 }
-export async function destroyList(symbol: string){
+export async function destroyList(symbol: string) {
   const { airlock } = useLocalState.getState()
   const json = { destroy: symbol };
   const pokeObj = { app: "list-store", mark: "trill-list-action", json: json }
@@ -322,6 +324,26 @@ export async function rebuildTimeline() {
   const json = { "rebuild-timeline": null };
   const pokeObj = { app: "feed-store", mark: "trill-feed-action", json: json }
   return await airlock.poke(pokeObj);
+}
+export async function editContact(status: string, nickname: string, avatar: string, cover: string, color: string, bio: string) {
+  const { our, airlock } = useLocalState.getState()
+  const statusJson = {status}
+  const nickJson = {nickname}
+  const avatarJson = {avatar}
+  const coverJson = {cover}
+  const colorJson = {color};
+  const bioJson = {bio}
+  const baseJson = {edit: {timestamp: Date.now(), ship: our, "edit-field": {}}};
+  const filter = [statusJson, nickJson, avatarJson, coverJson, bioJson].filter(j => Object.values(j)[0] !== "");
+  console.log(filter, "filter")
+  const ress = [];
+  for (let obj of filter){
+    baseJson.edit["edit-field"] = obj;
+    const pokeObj = { app: "contact-store", mark: "contact-update-0", json: baseJson }
+    const res = await airlock.poke(pokeObj);
+    ress.push(res);
+  }
+  return ress;
 }
 
 // dms
@@ -335,16 +357,16 @@ export async function postDM(recipient: Ship, text: string) {
 
 // notifications
 
-export async function wipeNotes(){
+export async function wipeNotes() {
   const { airlock } = useLocalState.getState()
-  const json = {wipe: null};
+  const json = { wipe: null };
   const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
   return await airlock.poke(pokeObj)
 }
 
-export async function dismissNote(n: Notification){
+export async function dismissNote(n: Notification) {
   const { airlock } = useLocalState.getState()
-  const json = {dismiss: n};
+  const json = { dismiss: n };
   const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
   return await airlock.poke(pokeObj)
 }

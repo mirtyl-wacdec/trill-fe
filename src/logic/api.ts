@@ -1,14 +1,14 @@
 import useLocalState from "./state";
 import Urbit from "@urbit/http-api";
 
-export const URL = "";
-// export const URL = "http://localhost";
+// export const URL = "";
+export const URL = "http://localhost";
 
 export function bootstrapApi(): Urbit {
   const airlock = new Urbit(URL);
   airlock.ship = (window as any).ship;
   airlock.desk = "trill";
-  airlock.verbose = true;
+  // airlock.verbose = true;
   airlock.onError = (e) => {
     (async () => {
       const { reconnect } = useLocalState.getState();

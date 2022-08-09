@@ -19,17 +19,17 @@ interface ComposerProps {
 }
 
 export default function (pr: ComposerProps) {
-  const { our, setReply, setQuote } = useLocalState();
+  const { our, setReply, setQuote, setPlayArea } = useLocalState();
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [poking, setPoking] = useState(false);
-  const [replying, setReplying] = useState(null);
   const [video, setVideo] = useState("");
   const [audio, setAudio] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [quote, setQuote2] = useState("");
+  const [button, setButton] = useState("Post");
+  const [canPost, setCanPost] = useState(true);
 
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>): void {
     const img = e.target.value.match(IMAGE_REGEX);
@@ -57,37 +57,26 @@ export default function (pr: ComposerProps) {
       return { url: i };
     });
     const withMedia = [...contents, ...imgs];
-    if (pr.replyTo) poastReply(withMedia)
-    else if (pr.quote) poastQuote(withMedia)
-    else poastIt(withMedia)
+    poastIt(withMedia)
     //    quit();
   }
   async function poastIt(c: Content[]){
+    setButton("...");
+    setCanPost(false);
     const r = await addPost(c, undefined);
-    if (r) reset();
+    if (r) success();
   }
-  async function poastReply(c: Content[]){
-    const r = await addPost(c, pr.replyTo);
-    if (r) reset();
-  }
-  async function poastQuote(c: Content[]){
-    const q = pr.quote as Node;
-    const ref: ReferenceContent = {
-      reference: {
-      feed: {
-        id: q.id,
-        host: q.post.host
-      }}
-    }
-    const contents = [ref, ...c];
-    const r = await addPost(contents, undefined);
-    if (r) reset();
-  }
-  function reset() {
+
+  function success() {
     setText("");
     setVideo("");
     setAudio("");
     setImages([]);
+    setButton("OK");
+    setTimeout(() => {
+      setCanPost(true)
+      setButton("Post")
+    }, 2000);
   }
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
@@ -98,6 +87,9 @@ export default function (pr: ComposerProps) {
     }
   }
 
+  function openProfileEdit(){
+    setPlayArea("editProfile")
+  }
   return (
     <div className="composer">
       {(pr.quote || pr.replyTo) &&
@@ -109,18 +101,16 @@ export default function (pr: ComposerProps) {
         <Sigil patp={our} size={30} />
         <div className="patp">
           <p className="patp-string">{our}</p>
-          <p className="clickable">Edit Profile</p>
+          <p onClick={openProfileEdit} className="clickable">Edit Profile</p>
         </div>
         <p className="clickable composer-metadata-icon">...</p>
       </div>
       <div className="textarea">
-        {pr.replyTo && <Reply r={pr.replyTo} />}
         <textarea
           value={text}
           placeholder="Type here"
           onInput={handleInput}
         ></textarea>
-        {pr.quote && <Quote q={pr.quote} />}
         <div id="media-preview">
           {!!video.length && (
             <video
@@ -155,36 +145,14 @@ export default function (pr: ComposerProps) {
             {text.length}/{256}
           </p>
           <div className="composer-icons">
-            <img className="clickable" src={add_image} alt="" />
+            {/* <img className="clickable" src={add_image} alt="" /> */}
             {/* <img className="clickable" src={emoji} alt="" /> */}
-            <button onClick={poast} className="clickable">
-              Poast
+            <button onClick={poast} disabled={!canPost} className="post-button clickable">
+              {button}
             </button>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-interface ReplyProps {
-  r: Node;
-}
-function Reply({ r }: ReplyProps) {
-  return (
-    <div className="reply-in-composer">
-      <p className="reply-metadata">Replying to: {r.post.author}</p>
-      <p className="reply-text">{nodeToText(r)}</p>
-    </div>
-  );
-}
-interface QuoteProps {
-  q: Node;
-}
-function Quote({ q }: QuoteProps) {
-  return (
-    <div className="quote-in-composer">
-      <p className="quote-metadata">{q.post.author}</p>
-      <p className="quote-text">{nodeToText(q)}</p>
     </div>
   );
 }

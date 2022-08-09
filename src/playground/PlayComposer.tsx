@@ -19,17 +19,17 @@ interface ComposerProps {
 }
 
 export default function (pr: ComposerProps) {
-  const { our, setReply, setQuote, resetPlayArea} = useLocalState();
+  const { resetPlayArea} = useLocalState();
   const [text, setText] = useState("");
   const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [poking, setPoking] = useState(false);
-  const [replying, setReplying] = useState(null);
   const [video, setVideo] = useState("");
   const [audio, setAudio] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [quote, setQuote2] = useState("");
+  const [button, setButton] = useState("Post");
+  const [canPost, setCanPost] = useState(true);
+
 
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>): void {
     const img = e.target.value.match(IMAGE_REGEX);
@@ -51,7 +51,8 @@ export default function (pr: ComposerProps) {
     setImages((i) => i.filter((img, ind) => ind !== which));
   }
   function poast() {
-    setPoking(true);
+    setButton("...");
+    setCanPost(false);
     const contents = tokenize(text);
     const imgs = images.map((i) => {
       return { url: i };
@@ -63,7 +64,7 @@ export default function (pr: ComposerProps) {
   }
   async function poastReply(c: Content[]) {
     const r = await addPost(c, pr.node);
-    if (r) reset();
+    if (r) success();
   }
   async function poastQuote(c: Content[]) {
     const q = pr.node;
@@ -77,13 +78,18 @@ export default function (pr: ComposerProps) {
     };
     const contents = [...c, ref];
     const r = await addPost(contents, undefined);
-    if (r) reset();
+    if (r) success();
   }
-  function reset() {
+  function success() {
     setText("");
     setVideo("");
     setAudio("");
     setImages([]);
+    setButton("OK");
+    setTimeout(() => {
+      setCanPost(true)
+      setButton("Post")
+    }, 2000);
   }
   function handlePaste(d: any) {
     if (d.clipboardData.files[0]) {
@@ -152,36 +158,14 @@ export default function (pr: ComposerProps) {
             {text.length}/{256}
           </p>
           <div className="composer-icons">
-            <img className="clickable" src={add_image} alt="" />
+            {/* <img className="clickable" src={add_image} alt="" /> */}
             {/* <img className="clickable" src={emoji} alt="" /> */}
-            <button onClick={poast} className="clickable">
-              Poast
+            <button onClick={poast} disabled={!canPost} className="post-button clickable">
+            {button}
             </button>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-interface ReplyProps {
-  r: Node;
-}
-function Reply({ r }: ReplyProps) {
-  return (
-    <div className="reply-in-composer">
-      <p className="reply-metadata">Replying to: {r.post.author}</p>
-      <p className="reply-text">{nodeToText(r)}</p>
-    </div>
-  );
-}
-interface QuoteProps {
-  q: Node;
-}
-function Quote({ q }: QuoteProps) {
-  return (
-    <div className="quote-in-composer">
-      <p className="quote-metadata">{q.post.author}</p>
-      <p className="quote-text">{nodeToText(q)}</p>
     </div>
   );
 }

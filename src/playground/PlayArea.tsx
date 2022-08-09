@@ -2,6 +2,7 @@ import type { ListType, Node } from "../logic/types";
 import { useState, useEffect } from "react";
 import Searchbox from "../ui/Searchbox";
 import UserPreview from "../ui/UserPreview";
+import EditProfile from "../ui/EditProfile";
 import useLocalState from "../logic/state";
 import PlayComposer from "./PlayComposer";
 import { useLocation } from "react-router-dom";
@@ -35,6 +36,7 @@ export default function () {
       <header>
         <Searchbox />
       </header>
+      {playingWith === "editProfile" && <EditProfile />}
       {playingWith === "userPreview" && <UserPreview patp={preview} />}
       {playingWith === "replyTo" && (
         <PlayComposer node={replyTo} interaction="reply" />

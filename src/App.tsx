@@ -48,8 +48,6 @@ function App() {
     setWex();
     // scryFollows();
   }, []);
-  console.log(following, "fing")
-  console.log(followers, "fers")
   return (
     <div className="App">
       <BrowserRouter basename="/apps/trill/">
