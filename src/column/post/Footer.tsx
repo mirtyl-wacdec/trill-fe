@@ -21,7 +21,6 @@ function Footer({ node }: FooterProps) {
       : Object.keys(node.children).length
     : 0;
   async function doRP() {
-    console.log("reposting");
     const c = [
       {
         reference: {

@@ -950,10 +950,17 @@ a.list-link{
 .comet-icon{
   width: 30px;
 }
+.open-dm .comet-icon{
+  width: 60px;
+}
 .unread .author{
   flex-grow: 1;
 }
 .spinner{
-  text-align: center;
-  margin-top: 5rem;
+  /* text-align: center; */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  
 }
