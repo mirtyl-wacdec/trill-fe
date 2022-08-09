@@ -953,3 +953,7 @@ a.list-link{
 .unread .author{
   flex-grow: 1;
 }
+.spinner{
+  text-align: center;
+  margin-top: 5rem;
+}
