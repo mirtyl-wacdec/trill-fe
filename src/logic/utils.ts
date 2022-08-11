@@ -1,7 +1,7 @@
 import type { Content } from "./types";
 import { patp2dec, isValidPatp } from "./ob/co";
 import anyAscii from 'any-ascii';
-import type { Node, GraphStoreNode } from "../logic/types";
+import type { Node, GraphStoreNode, AssociationGraph, Association, GSResource } from "../logic/types";
 
 
 type tokenizerData = [string, taggedContent[]];
@@ -194,6 +194,108 @@ export function buildDM(author: Ship, recipient: Ship, contents: Content[]) {
     }
   };
 }
+
+export function buildChatPost(author: Ship, resource: GSResource, c: Content[]) {
+  const index = `/${makeIndex()}`;
+  return {
+    "add-nodes": {
+      resource: { name: resource.name, ship: resource.entity },
+      nodes: {
+        [index]: {
+          children: null,
+          post: {
+            author: author,
+            contents: c,
+            hash: null,
+            index: index,
+            signatures: [],
+            "time-sent": Date.now()
+          }
+        }
+      }
+    }
+  };
+}
+
+export function buildNotebookPost(author: Ship, resource: GSResource, c: Content[]) {
+  const node = {};
+  const index = `/${makeIndex()}`;
+  node[index] = {
+    children: {
+      "1": {
+        post: {
+          author: author,
+          contents: [],
+          hash: null,
+          index: index + "/1",
+          signatures: [],
+          "time-sent": Date.now()
+        },
+        children: {
+          "1": {
+            children: null,
+            post: {
+              author: author,
+              contents: c,
+              hash: null,
+              index: index + "/1/1",
+              signatures: [],
+              "time-sent": Date.now()
+            }
+
+          }
+        }
+      },
+      "2": {
+        children: null,
+        post: {
+          author: author,
+          contents: [],
+          hash: null,
+          index: index + "/2",
+          signatures: [],
+          "time-sent": Date.now()
+        }
+      }
+    },
+    post: {
+      author: author,
+      contents: [],
+      hash: null,
+      index: index,
+      signatures: [],
+      "time-sent": Date.now()
+    }
+  }
+  return {
+    "add-nodes": {
+      resource: { name: resource.name, ship: resource.entity },
+      nodes: node
+    }
+  }
+}
+export function buildCollectionPost(author: Ship, resource: GSResource, c: Content[]) {
+  const node = {};
+  const index = `/${makeIndex()}`;
+  node[index] = {
+    children: null,
+    post: {
+      author: author,
+      contents: c,
+      hash: null,
+      index: index,
+      signatures: [],
+      "time-sent": Date.now()
+    }
+  }
+  return {
+    "add-nodes": {
+      resource: { name: resource.name, ship: resource.entity },
+      nodes: node
+    }
+  }
+}
+
 function makeIndex() {
   const DA_UNIX_EPOCH = BigInt('170141184475152167957503069145530368000');
   const DA_SECOND = BigInt('18446744073709551616');
@@ -224,8 +326,33 @@ export function repostData(n: Node): RepostData | null {
   else return null
 }
 
-export function nodesFromGraphUpdate(g: any): GraphStoreNode[]{
-   const nodes = g["graph-update"]["add-nodes"]["nodes"];
-   return Object.keys(nodes).map(n => nodes[n]);
+export function nodesFromGraphUpdate(g: any): GraphStoreNode[] {
+  const nodes = g["graph-update"]["add-nodes"]["nodes"];
+  return Object.keys(nodes).map(n => nodes[n]);
+}
 
+export function setTheme() {
+  const wantsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  console.log(wantsDark, "setting theme")
+  if (wantsDark) document.documentElement.setAttribute('data-theme', "dark")
+  else document.documentElement.setAttribute('data-theme', "light")
+}
+
+export function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const nextTheme = currentTheme === "light" ? "dark" : "light";
+  document.documentElement.setAttribute('data-theme', nextTheme)
+}
+
+export function cleanMetadata(metadata: AssociationGraph): Association[] {
+  const all: Association[] = Object.values(metadata);
+  const graphs = all.filter(a => a["app-name"] === "graph");
+  return graphs.map(g => {
+    const gn = `${g.group}/groups${g.group}`
+    const gn2 = `${g.group}/graph${g.group}`
+    const group = metadata[gn] || metadata[gn2];
+    if (!group) console.log(g, "you lack metadata for this graph")
+    const title = group ? group.metadata.title : "error"
+    return { ...g, ...{ groupName: title } }
+  })
 }

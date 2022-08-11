@@ -65,6 +65,8 @@ export interface LocalState {
   notifications: Notifications;
   browsingList: ListType | null;
   setBrowsingList: (l: ListType) => void;
+  sharing: Node | null;
+  setSharing: (n: Node) => void;
 };
 type PlayAreaOptions = "replyTo"
   | "quoteTo"
@@ -74,6 +76,7 @@ type PlayAreaOptions = "replyTo"
   | "lists"
   | "listEdit"
   | "editProfile"
+  | "shareTrill"
   | ""
 
 function wait(ms: number) {
@@ -237,6 +240,7 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   subscribeFeed: async () => {
     const reducer = (data: any) => {
+      console.log(data, "data on feed")
       const { activeThread, activeFeed, activeGraph } = get();
       if ("feed-post-update" in data) {
         if ("thread-updated" in data["feed-post-update"]) {
@@ -342,7 +346,9 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
     follows: [], unfollows: [], engagement: [], unread: []
   },
   browsingList: null,
-  setBrowsingList: (l: ListType) => set({ browsingList: l })
+  setBrowsingList: (l: ListType) => set({ browsingList: l }),
+  sharing: null,
+  setSharing: (n : Node) => set({playingWith: "shareTrill", sharing: n})
 }));
 
 export default useLocalState;

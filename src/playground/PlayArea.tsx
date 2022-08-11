@@ -7,6 +7,7 @@ import useLocalState from "../logic/state";
 import PlayComposer from "./PlayComposer";
 import { useLocation } from "react-router-dom";
 import ListSubMenu from "./ListSubMenu";
+import ShareTrill from "./ShareTrill";
 import { addReact, destroyList, editList } from "../logic/actions";
 import { stringToSymbol } from "../logic/utils";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +49,7 @@ export default function () {
       {playingWith === "lists" && <ListSubMenu />}
       {playingWith === "listEdit" && browsingList && <EditList />}
       {playingWith === "engagement" && <Engagement />}
+      {playingWith === "shareTrill" && <ShareTrill />}
     </div>
   );
 }

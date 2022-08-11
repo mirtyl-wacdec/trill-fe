@@ -213,3 +213,8 @@ export interface MentionNotification {
 export interface UnreadDisplay{
   [s: Ship] : string[]
 }
+
+export interface GSKey{
+  name: string; 
+  ship: Ship
+}

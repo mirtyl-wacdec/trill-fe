@@ -4,14 +4,16 @@ import reply from "../../icons/reply.svg";
 import quote from "../../icons/quote.svg";
 import repost from "../../icons/repost.svg";
 import emoji from "../../icons/emoji.svg";
+import menu from "../../icons/postmenu.svg";
 import { useState } from "react";
 import useLocalState from "../../logic/state";
-import { addPost, scryNodeFull } from "../../logic/actions";
+import { addPost, deletePost, scryNodeFull } from "../../logic/actions";
 interface FooterProps {
   node: Node;
 }
 function Footer({ node }: FooterProps) {
   const [reacts, setReacts] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const { setReply, setQuote, setReacting, setEngagement } = useLocalState();
   const doReply = () => setReply(node);
   const doQuote = () => setQuote(node);
@@ -32,7 +34,7 @@ function Footer({ node }: FooterProps) {
       },
     ];
     const r = await addPost(c, undefined);
-    if (r) ("posted");
+    if (r) "posted";
   }
   function doReact() {
     setReacting(node);
@@ -46,11 +48,11 @@ function Footer({ node }: FooterProps) {
       setEngagement({ type: "replies", ships: authors }, node);
     }
   }
-  async function fetchAndShow(){
+  async function fetchAndShow() {
     let authors = [];
-    for (let i of node.children as string[]){
+    for (let i of node.children as string[]) {
       const res = await scryNodeFull(node.post.host, i);
-      authors.push(res["full-node-scry"]?.post?.author || "deleter")
+      authors.push(res["full-node-scry"]?.post?.author || "deleter");
     }
     setEngagement({ type: "replies", ships: authors }, node);
   }
@@ -65,7 +67,9 @@ function Footer({ node }: FooterProps) {
     setEngagement({ type: "reacts", reacts: node.engagement.reacts }, node);
   }
 
-  // onClick={() => setReacts(!reacts)
+  function openMenu() {
+    setShowMenu(true)
+  }
   return (
     <footer>
       <div className="icon">
@@ -98,8 +102,31 @@ function Footer({ node }: FooterProps) {
         </span>
         <img onClick={doReact} src={emoji} alt="" />
       </div>
+      <div className="icon">
+        <img onClick={openMenu} src={menu} alt="" />
+      </div>
+      {showMenu && <Menu node={node} />}
     </footer>
   );
 }
 
 export default Footer;
+
+function Menu({ node }: any) {
+  const { our, setPlayArea, setSharing } = useLocalState();
+  const mine = our === node.host || our === node.post.author;
+  function openShare() {
+    setPlayArea("shareTrill");
+    setSharing(node);
+  }
+  async function doDelete() {
+    const res = await deletePost(node);
+    if (res) console.log("deleted");
+  }
+  return (
+    <div id="post-menu">
+      <p onClick={openShare}>Share to Groups</p>
+      {mine && <p onClick={doDelete}>Delete Post</p>}
+    </div>
+  );
+}

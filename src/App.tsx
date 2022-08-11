@@ -19,6 +19,7 @@ import Changelog from "./column/Changelog";
 import Twatter from "./apps/twatter/Index";
 import PlayArea from "./playground/PlayArea";
 import Error from "./errors/404";
+import { setTheme } from "./logic/utils";
 
 function App() {
   const [writing, setWriting] = useState(false);
@@ -39,6 +40,7 @@ function App() {
     following
   } = useLocalState();
   useEffect(() => {
+    setTheme();
     init(),
     scryPolicy();
     scryLists();
@@ -72,7 +74,6 @@ function App() {
         </Routes>
         <PlayArea />
       </BrowserRouter>
-      {/* <PlayArea /> */}
     </div>
   );
 }

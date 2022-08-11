@@ -96,6 +96,18 @@ export async function scryChangelog() {
   return res
 }
 
+export async function scryGSKeys(){
+  const { airlock } = useLocalState.getState()
+  const path = `/keys`;
+  const res = await airlock.scry({ app: "graph-store", path: path });
+  return res
+}
+export async function scryGraphs(){
+  const { airlock } = useLocalState.getState()
+  const path = `/graphs`;
+  const res = await airlock.scry({ app: "ufa-deck", path: path });
+  return res
+}
 // scries>
 
 // <subscriptions
@@ -143,6 +155,8 @@ export async function subscribeHark(handler: Handler) {
 
 // subscriptions>
 
+// <pokes
+
 export async function addPost(contents: Content[], parent: Node | undefined) {
   const { airlock, our } = useLocalState.getState()
   const json = {
@@ -159,6 +173,16 @@ export async function addPost(contents: Content[], parent: Node | undefined) {
     mark: "trill-post-action",
     json: json,
   });
+}
+export async function deletePost(node: Node) {
+  const { airlock } = useLocalState.getState()
+  const json = {
+    "del-post": {
+      host: node.post.host,
+      id: node.id,
+    },
+  };
+  return airlock.poke({ app: "feed-store", mark: "trill-post-action", json: json });
 }
 
 export async function addReact(ship: Ship, id: ID, reaction: string) {
@@ -335,7 +359,6 @@ export async function editContact(status: string, nickname: string, avatar: stri
   const bioJson = {bio}
   const baseJson = {edit: {timestamp: Date.now(), ship: our, "edit-field": {}}};
   const filter = [statusJson, nickJson, avatarJson, coverJson, bioJson].filter(j => Object.values(j)[0] !== "");
-  console.log(filter, "filter")
   const ress = [];
   for (let obj of filter){
     baseJson.edit["edit-field"] = obj;
@@ -368,5 +391,11 @@ export async function dismissNote(n: Notification) {
   const { airlock } = useLocalState.getState()
   const json = { dismiss: n };
   const pokeObj = { app: "feed-hark", mark: "trill-hark-action", json: json }
+  return await airlock.poke(pokeObj)
+}
+export async function sendToLandscape(json: any) {
+  const { airlock } = useLocalState.getState()
+  const pokeObj = { app: "graph-store", mark: "graph-update-3", json: json }
+  console.log(pokeObj, "json")
   return await airlock.poke(pokeObj)
 }
