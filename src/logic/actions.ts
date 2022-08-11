@@ -67,7 +67,6 @@ export async function scryDM(patp: Ship) {
   const dec = patp2dec(patp);
   const dotted = dec.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const path = `/graph/${our}/dm-inbox/node/siblings/newest/lone/100/${dotted}`;
-  console.log(path, "scry dm path")
   const res = await airlock.scry({ app: "graph-store", path: path });
   return res
 }

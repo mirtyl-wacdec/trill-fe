@@ -218,3 +218,40 @@ export interface GSKey{
   name: string; 
   ship: Ship
 }
+export interface AssociationGraph{
+  [key: string]: Association
+}
+export interface Association{
+  metadata: Metadatum
+  "app-name": "graph" | "groups"
+  resource: string // resource string
+  group: string // same
+  groupName: string // here we ourselves add the group title
+}
+export interface Metadatum{
+  preview: boolean,
+      vip: string,
+      title: string
+      description: string
+      creator: Ship
+      picture: string //URL
+      hidden: boolean,
+      config: MetadataConfig
+      "date-created": string
+      color: string
+}
+type MetadataConfig = GroupConfig | GraphConfig
+export interface GroupConfig {
+    group: {
+        "app-name": "graph"
+        resource: string ///ship/~bacrys/pokur-14
+    }
+}
+export interface GraphConfig {
+  graph: GraphType
+}
+export type GraphType = "chat" | "publish" | "link" | "post";
+
+export interface GSResource{
+  entity: Ship, name: string
+}

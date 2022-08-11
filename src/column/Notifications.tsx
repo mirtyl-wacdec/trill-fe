@@ -20,7 +20,6 @@ function Notifications() {
   const [showUnread, setShowUnread] = useState(false);
   async function wipe() {
     const res = await wipeNotes();
-    console.log(res, "wiped");
     if (res) scryHark();
   }
   const reducedUnreads = notifications.unread.reduce(

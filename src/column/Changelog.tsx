@@ -14,7 +14,6 @@ function Home() {
       .then((res) => {
         const nodes = nodesFromGraphUpdate(res);
         setNode(nodes[0]);
-        console.log(res, "scried changelog")
       })
       .catch((err) => console.log("oops"));
   }, []);

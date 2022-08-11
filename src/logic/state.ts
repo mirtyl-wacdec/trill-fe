@@ -240,7 +240,6 @@ const useLocalState = create<LocalStateZus>((set, get) => ({
   },
   subscribeFeed: async () => {
     const reducer = (data: any) => {
-      console.log(data, "data on feed")
       const { activeThread, activeFeed, activeGraph } = get();
       if ("feed-post-update" in data) {
         if ("thread-updated" in data["feed-post-update"]) {
