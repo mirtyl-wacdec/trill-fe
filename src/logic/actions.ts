@@ -395,7 +395,6 @@ export async function dismissNote(n: Notification) {
 }
 export async function sendToLandscape(json: any) {
   const { airlock } = useLocalState.getState()
-  const pokeObj = { app: "graph-store", mark: "graph-update-3", json: json }
-  console.log(pokeObj, "json")
+  const pokeObj = { app: "graph-push-hook", mark: "graph-update-3", json: json }
   return await airlock.poke(pokeObj)
 }
