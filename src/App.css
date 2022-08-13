@@ -1067,10 +1067,10 @@ a.list-link{
 }
 
 #post-menu{
-  background-color: var(--background-color);
-  height: 80px;
+  /* height: 80px; */
 }
 #post-menu p{
+  background-color: var(--background-color);
   margin: 0;
   padding: 0.5rem;
   cursor: pointer;

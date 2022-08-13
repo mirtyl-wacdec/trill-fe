@@ -5,7 +5,7 @@ import quote from "../../icons/quote.svg";
 import repost from "../../icons/repost.svg";
 import emoji from "../../icons/emoji.svg";
 import menu from "../../icons/postmenu.svg";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import useLocalState from "../../logic/state";
 import { addPost, deletePost, scryNodeFull } from "../../logic/actions";
 interface FooterProps {
@@ -105,14 +105,25 @@ function Footer({ node }: FooterProps) {
       <div className="icon">
         <img onClick={openMenu} src={menu} alt="" />
       </div>
-      {showMenu && <Menu node={node} />}
+      {showMenu && <Menu node={node} setShowMenu={setShowMenu} />}
     </footer>
   );
 }
 
 export default Footer;
 
-function Menu({ node }: any) {
+function Menu({ node, setShowMenu }: any) {
+  const ref = useRef<HTMLDivElement>();
+  useEffect(() => {
+    const checkIfClickedOutside = e => {
+      if (ref && ref.current && !ref.current.contains(e.target)) 
+      setShowMenu(false);
+    };
+    document.addEventListener('mousedown', checkIfClickedOutside);
+    return () => {
+      document.removeEventListener('mousedown', checkIfClickedOutside);
+    };
+  }, [])
   const { our, setPlayArea, setSharing } = useLocalState();
   const mine = our === node.host || our === node.post.author;
   function openShare() {
@@ -124,7 +135,7 @@ function Menu({ node }: any) {
     if (res) console.log("deleted");
   }
   return (
-    <div id="post-menu">
+    <div ref={ref} id="post-menu">
       <p onClick={openShare}>Share to Groups</p>
       {mine && <p onClick={doDelete}>Delete Post</p>}
     </div>

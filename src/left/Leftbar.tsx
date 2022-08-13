@@ -97,7 +97,7 @@ function Leftbar() {
         <Link className="link" to="/version">
           <div className="footer">
             <p>Trill</p>
-            <p className="version">0.2.0</p>
+            <p className="version">0.3.0</p>
           </div>
         </Link>
       </div>
