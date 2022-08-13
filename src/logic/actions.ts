@@ -173,12 +173,12 @@ export async function addPost(contents: Content[], parent: Node | undefined) {
     json: json,
   });
 }
-export async function deletePost(node: Node) {
+export async function deletePost(host: Ship, id: string) {
   const { airlock } = useLocalState.getState()
   const json = {
     "del-post": {
-      host: node.post.host,
-      id: node.id,
+      host: host,
+      id: id,
     },
   };
   return airlock.poke({ app: "feed-store", mark: "trill-post-action", json: json });

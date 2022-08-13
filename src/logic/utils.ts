@@ -2,7 +2,7 @@ import type { Content } from "./types";
 import { patp2dec, isValidPatp } from "./ob/co";
 import anyAscii from 'any-ascii';
 import type { Node, GraphStoreNode, AssociationGraph, Association, GSResource } from "../logic/types";
-
+import useLocalState from "../logic/state";
 
 type tokenizerData = [string, taggedContent[]];
 type taggedContent = [string, Content];
@@ -339,8 +339,9 @@ export function setTheme() {
 }
 
 export function toggleTheme() {
-  const currentTheme = document.documentElement.getAttribute("data-theme");
-  const nextTheme = currentTheme === "light" ? "dark" : "light";
+  const { darkMode, setDarkMode } = useLocalState.getState()
+  const nextTheme = darkMode ?  "light" : "dark";
+  setDarkMode(!darkMode);
   document.documentElement.setAttribute('data-theme', nextTheme)
 }
 

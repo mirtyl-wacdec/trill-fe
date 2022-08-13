@@ -175,6 +175,7 @@ a,p,h1,h2,h3,h4,h5,h6{
   min-height: 160px;
   background-color: transparent;
   border: none;
+  color: var(--text-color);
 }
 .composer #media-preview{
   flex-grow: 1;
@@ -1095,4 +1096,21 @@ a.list-link{
   width: 100%;
   margin-bottom: 0.5rem;
   padding: 0.5rem;
+}
+
+.body-text{
+  word-break: break-all;
+}
+.composer .patp-string{
+  
+}
+#app-title{
+  display: flex;
+  justify-content: space-between;
+}
+#app-title h4{
+  margin: 0;
+}
+#theme-toggle{
+  cursor: pointer;
 }

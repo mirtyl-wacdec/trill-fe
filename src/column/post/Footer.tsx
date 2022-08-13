@@ -12,9 +12,8 @@ interface FooterProps {
   node: Node;
 }
 function Footer({ node }: FooterProps) {
-  const [reacts, setReacts] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const { setReply, setQuote, setReacting, setEngagement } = useLocalState();
+  const { our, setReply, setQuote, setReacting, setEngagement } = useLocalState();
   const doReply = () => setReply(node);
   const doQuote = () => setQuote(node);
   const childrenCount = node.children
@@ -22,7 +21,17 @@ function Footer({ node }: FooterProps) {
       ? node.children.length
       : Object.keys(node.children).length
     : 0;
-  async function doRP() {
+
+  const myRP = node.engagement.shared.find(s => s.host === our);
+  function doRP() {
+    if (myRP) cancelRP()
+    else sendRP()
+  }
+  async function cancelRP(){
+    const r = await deletePost(myRP.host, myRP.id);
+    if (r) console.log("canceled")
+  }
+  async function sendRP(){
     const c = [
       {
         reference: {
@@ -34,7 +43,7 @@ function Footer({ node }: FooterProps) {
       },
     ];
     const r = await addPost(c, undefined);
-    if (r) "posted";
+    if (r) console.log("posted");
   }
   function doReact() {
     setReacting(node);
@@ -84,7 +93,8 @@ function Footer({ node }: FooterProps) {
             ? node.engagement.shared.length
             : ""}
         </span>
-        <img onClick={doRP} src={repost} alt="" />
+        <img className={myRP ? "my-rp" : ""}
+        onClick={doRP} src={repost} title={myRP ? "cancel repost": "repost"} />
       </div>
       <div className="icon">
         <span onClick={showQuoteCount} className="quote-count">
@@ -131,7 +141,7 @@ function Menu({ node, setShowMenu }: any) {
     setSharing(node);
   }
   async function doDelete() {
-    const res = await deletePost(node);
+    const res = await deletePost(node.post.host, node.id);
     if (res) console.log("deleted");
   }
   return (

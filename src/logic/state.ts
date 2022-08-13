@@ -8,6 +8,8 @@ import { NullIcon } from "../ui/Icons";
 import { buntList } from "./bunts";
 
 export interface LocalState {
+  darkMode: boolean;
+  setDarkMode: (b: boolean) => void;
   our: Ship;
   airlock: Urbit;
   theme: "light" | "dark" | "auto";
@@ -87,6 +89,8 @@ function wait(ms: number) {
 type LocalStateZus = LocalState & State;
 
 const useLocalState = create<LocalStateZus>((set, get) => ({
+  darkMode: window.matchMedia("(prefers-color-scheme: dark)").matches,
+  setDarkMode: (b) => set({darkMode: b}),
   our: "~" + (window as any).ship,
   theme: "auto",
   followers: new Set([]),

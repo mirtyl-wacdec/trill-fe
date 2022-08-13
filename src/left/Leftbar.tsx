@@ -7,14 +7,17 @@ import notes from "../icons/notes.svg";
 import settings from "../icons/settings.svg";
 import pals from "../icons/pals.svg";
 import twatter from "../icons/twatter.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MiniComposer from "../ui/MiniComposer";
 import Searchbox from "../ui/Searchbox";
+import useLocalState from "../logic/state";
+import { toggleTheme } from "../logic/utils";
 export const MOBILE_BROWSER_REGEX =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry/i;
 const isMobile = MOBILE_BROWSER_REGEX.test(navigator.userAgent);
 
 function Leftbar() {
+  const {darkMode} = useLocalState();
   if (isMobile)
     return (
       <div id="downbar">
@@ -42,7 +45,12 @@ function Leftbar() {
     return (
       <div id="leftbar">
         <div id="main-icons applet">
-          <h4>Trill</h4>
+          <div id="app-title">
+            <h4>Trill</h4>
+            <h4 id="theme-toggle" onClick={toggleTheme}>
+              {darkMode ? "🌛" : "🌞"}
+            </h4>
+          </div>
           <Link className="link" to="/timeline">
             <div className="left-menu-item">
               <img className="left-menu-icon" src={home} alt="" />
